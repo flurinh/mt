@@ -1,0 +1,2853 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Structure data</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table><table class="display compact text-nowrap dataTable no-footer" id="structures_scrollable" role="grid" aria-describedby="structures_scrollable_info"><thead>
+                    <tr class="over_header over_header_row" role="row" style=""><th colspan="6" class="over_header" rowspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 398.333px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div class="overhead_text">RECEPTOR</div>
+                            </div>
+                        </div></th><th colspan="8" class="over_header flexible_over_header" id="structure_over_header" rowspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 557px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div class="overhead_text">STRUCTURE</div>
+                                <div class="overhead_close">
+                                    
+                                </div>
+                            </div>
+                        </div></th><th colspan="4" class="over_header flexible_over_header" id="sign_prot_over_header" rowspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 311.667px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div class="overhead_text">SIGNAL PROTEIN</div>
+                                <div class="overhead_close">
+                                    
+                                </div>
+                            </div>
+                        </div></th><th colspan="2" class="over_header flexible_over_header" id="aux_prot_over_header" rowspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 228.333px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div class="overhead_text">AUXILIARY PROTEIN</div>
+                                <div class="overhead_close">
+                                    
+                                </div>
+                            </div>
+                        </div></th><th colspan="3" class="over_header flexible_over_header" id="structure_ligand_over_header" rowspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 346.333px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div class="overhead_text">STRUCTURE LIGAND</div>
+                                <div class="overhead_close">
+                                    
+                                </div>
+                            </div>
+                        </div></th><th colspan="2" class="over_header flexible_over_header" id="endo_ligand_over_header" rowspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 208.333px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div class="overhead_text">ENDOGENOUS LIGAND</div>
+                                <div class="overhead_close">
+                                    
+                                </div>
+                            </div>
+                        </div></th><th colspan="2" class="over_header flexible_over_header" id="sodium_over_header" rowspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 116.333px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div class="overhead_text">SODIUM ION SITE</div>
+                                <div class="overhead_close">
+                                    
+                                </div>
+                            </div>
+                        </div></th><th colspan="3" class="over_header flexible_over_header" id="reference_over_header" rowspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 331.667px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div class="overhead_text">REFERENCE</div>
+                                <div class="overhead_close">
+                                    
+                                </div>
+                            </div>
+                        </div></th><th colspan="1" class="over_header flexible_over_header" id="annotated_over_header" rowspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 90.3333px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div class="overhead_text">ANNOTATED</div>
+                                <div class="overhead_close">
+                                    
+                                </div>
+                            </div>
+                        </div></th></tr>
+                    <tr class="over_header centered-header" role="row" style=""><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 2.66667px;"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 60px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div>UniProt</div>
+                                <div></div>
+                            </div>
+                        </div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 60px;"><div class="dataTables_sizing" style="overflow: hidden;">IUPHAR</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 80px;"><div class="dataTables_sizing" style="overflow: hidden;">Receptor family</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 35.3333px;"><div class="dataTables_sizing" style="overflow: hidden;">Cl.</div></th><th class="rightborder" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 60.3333px;"><div class="dataTables_sizing" style="overflow: hidden;">Species</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 60px;"><div class="dataTables_sizing" style="overflow: hidden;">Method</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 50px;"><div class="dataTables_sizing" style="overflow: hidden;">
+                            <div>
+                                <div>PDB</div>
+                                <div></div>
+                            </div>
+                        </div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 54.6667px;"><div class="dataTables_sizing" style="overflow: hidden;">Refined<br>structure<br><a href="https://docs.gpcrdb.org/structures.html#refined-structures" target="_blank"><span class="glyphicon glyphicon-info-sign"></span></a></div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 52px;"><div class="dataTables_sizing" style="overflow: hidden;">Resolution</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 44.6667px;"><div class="dataTables_sizing" style="overflow: hidden;">Preferred<br>chain</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 70px;"><div class="dataTables_sizing" style="overflow: hidden;">State</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 47.3333px;"><div class="dataTables_sizing" style="overflow: hidden;">Degree<br>active (%)</div></th><th class="rightborder" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 42.3333px;"><div class="dataTables_sizing" style="overflow: hidden;">% of Seq</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 50px;"><div class="dataTables_sizing" style="overflow: hidden;">Family</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 55.3333px;"><div class="dataTables_sizing" style="overflow: hidden;">Subtype</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;"><div class="dataTables_sizing" style="overflow: hidden;">Note</div></th><th class="rightborder" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 42.3333px;"><div class="dataTables_sizing" style="overflow: hidden;">% of Seq</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;"><div class="dataTables_sizing" style="overflow: hidden;">Fusion</div></th><th class="rightborder" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100.333px;"><div class="dataTables_sizing" style="overflow: hidden;">Antibodies</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;"><div class="dataTables_sizing" style="overflow: hidden;">Name</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;"><div class="dataTables_sizing" style="overflow: hidden;">Type</div></th><th class="rightborder" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100.333px;"><div class="dataTables_sizing" style="overflow: hidden;">Function</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;"><div class="dataTables_sizing" style="overflow: hidden;">Name</div></th><th class="rightborder" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 80.3333px;"><div class="dataTables_sizing" style="overflow: hidden;">Type</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 40px;"><div class="dataTables_sizing" style="overflow: hidden;">D2x50<br>S3x39</div></th><th class="rightborder" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 48.3333px;"><div class="dataTables_sizing" style="overflow: hidden;">Sodium in<br>structure</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;"><div class="dataTables_sizing" style="overflow: hidden;">Authors</div></th><th rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 140px;"><div class="dataTables_sizing" style="overflow: hidden;">Reference</div></th><th class="rightborder" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 45.6667px;"><div class="dataTables_sizing" style="overflow: hidden;">PDB Date</div></th><th class="rightborder" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 80.3333px;"><div class="dataTables_sizing" style="overflow: hidden;"></div></th></tr>
+                    <tr role="row" style=""><th class="no-sort checkbox_tr sorting_disabled" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 12.6667px;" aria-label=""><div class="dataTables_sizing" style="overflow: hidden;"><input class="select-all" type="checkbox" onclick="select_all(this)"></div></th><th class="sorting_asc" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 60px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 60px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 80px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 35.3333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="rightborder sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 60.3333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 60px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 50px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 54.6667px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 52px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 44.6667px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 70px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 47.3333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="rightborder sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 42.3333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 50px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 55.3333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="rightborder sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 42.3333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="rightborder sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100.333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="width: 100px; padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="rightborder sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100.333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="rightborder sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 80.3333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 40px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="rightborder sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 48.3333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 100px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 140px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="rightborder sorting_desc" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 45.6667px;" aria-label=": activate to sort column ascending" aria-sort="descending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th><th class="rightborder sorting" aria-controls="structures_scrollable" rowspan="1" colspan="1" style="padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; width: 80.3333px;" aria-label=": activate to sort column ascending"><div class="dataTables_sizing" style="overflow: hidden;"></div></th></tr>
+
+                </thead>
+                
+                <tbody>
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                    
+                        
+                
+                <tr model_id="464" role="row" class="odd">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="464"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P07550">ADRB2</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/adrb2_human">β<sub>2</sub></a></td>
+                        <td class="expand"><span>Adrenoceptors</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="7DHR">7DHR</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/7DHR_refined">7DHR_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.8</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">69</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>49</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                Isoprenaline
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/443372" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                (-)-adrenaline, (-)-noradrenaline, noradrenaline, Zn<sup>2+</sup>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Yang F, Ling S, Zhou Y, Zhang Y, Lv P, Liu S, Fang W, Sun W, Hu LA, Zhang L, Shi P, Tian C
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1093/NSR/NWAA284">
+                            10.1093/NSR/NWAA284
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2020-12-16</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr model_id="479" role="row" class="even">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="479"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P07550">ADRB2</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/adrb2_human">β<sub>2</sub></a></td>
+                        <td class="expand"><span>Adrenoceptors</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="7DHI">7DHI</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/7DHI_refined">7DHI_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.3</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">70</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>55</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                Salbutamol
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/123600" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                (-)-adrenaline, (-)-noradrenaline, noradrenaline, Zn<sup>2+</sup>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Yang F, Ling S, Zhou Y, Zhang Y, Lv P, Liu S, Fang W, Sun W, Hu LA, Zhang L, Shi P, Tian C
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1093/NSR/NWAA284">
+                            10.1093/NSR/NWAA284
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2020-12-16</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr class="repr-st odd" model_id="2" role="row">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="2"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P35408">PE2R4</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/pe2r4_human">EP<sub>4</sub></a></td>
+                        <td class="expand"><span>Prostanoid</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="7D7M">7D7M</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/7D7M_refined">7D7M_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.3</td>
+                        <td class="text-center">A</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">58</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>58</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                Dinoprostone
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/5280360" target="_blank">pubchem</a>
+                            
+                                <a href="https://www.ebi.ac.uk/chembl/compound/inspect/CHEMBL548" target="_blank">chembl_ligand</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                PGE<sub>1</sub>, PGD<sub>2</sub>, PGE<sub>2</sub>, PGF<sub>2α</sub>, PGI<sub>2</sub>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            -
+                            
+                        </td>
+                        <td>
+                            
+                            -
+                            
+                        </td>
+                        <td class="sorting_1">2020-11-18</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr class="repr-st even" model_id="79" role="row">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="79"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/Q8TDU6">GPBAR</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/gpbar_human">GPBA</a></td>
+                        <td class="expand"><span>Bile acid</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="7CFN">7CFN</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/7CFN_refined">7CFN_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.0</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">83</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>59</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                INT-777
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/154584336" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                                INT-777
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/154584336" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule<br>small molecule</td>
+                        <td>Agonist<br>PAM</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                chenodeoxycholic acid, cholic acid, deoxycholic acid, lithocholic acid
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Yang F, Mao C, Guo L, Lin J, Ming Q, Xiao P, Wu X, Shen Q, Guo S, Shen D, Lu R, Zhang L, Huang S, Ping Y, Zhang C, Ma C, Zhang K, Liang X, Shen Y, Nan F, Yi F, Luca VC, Zhou J, Jiang C, Sun J, Xie X, Yu X, Zhang Y
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1038/S41586-020-2569-1">
+                            10.1038/S41586-020-2569-1
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2020-09-09</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr model_id="320" role="row" class="odd">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="320"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/Q8TDU6">GPBAR</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/gpbar_human">GPBA</a></td>
+                        <td class="expand"><span>Bile acid</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="7CFM">7CFM</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/7CFM_refined">7CFM_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.0</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">83</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>58</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                P395
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/71541719" target="_blank">pubchem</a>
+                            
+                                <a href="https://www.ebi.ac.uk/chembl/compound/inspect/CHEMBL2331646" target="_blank">chembl_ligand</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>none</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                chenodeoxycholic acid, cholic acid, deoxycholic acid, lithocholic acid
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Yang F, Mao C, Guo L, Lin J, Ming Q, Xiao P, Wu X, Shen Q, Guo S, Shen D, Lu R, Zhang L, Huang S, Ping Y, Zhang C, Ma C, Zhang K, Liang X, Shen Y, Nan F, Yi F, Luca VC, Zhou J, Jiang C, Sun J, Xie X, Yu X, Zhang Y
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1038/S41586-020-2569-1">
+                            10.1038/S41586-020-2569-1
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2020-09-09</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr model_id="300" role="row" class="even">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="300"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P07700">ADRB1</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/adrb1_melga">β<sub>1</sub></a></td>
+                        <td class="expand"><span>Adrenoceptors</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Wild turkey</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="7JJO">7JJO</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/7JJO_refined">7JJO_refined</a>
+                            
+                        </td>
+                        <td class="text-center">2.6</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">58</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_bovin">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>51</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                Isoprenaline
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/443372" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                (-)-adrenaline, (-)-noradrenaline, noradrenaline
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Su M, Zhu L, Zhang Y, Paknejad N, Dey R, Huang J, Lee M, Williams D, Jordan KD, Eng ET, Ernst OP, Meyerson JR, Hite RK, Walz T, Liu W, Huang X
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1016/J.MOLCEL.2020.08.001">
+                            10.1016/J.MOLCEL.2020.08.001
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2020-09-02</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr model_id="132" role="row" class="odd">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="132"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/Q8TDU6">GPBAR</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/gpbar_human">GPBA</a></td>
+                        <td class="expand"><span>Bile acid</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="7BW0">7BW0</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/7BW0_refined">7BW0_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.9</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">85</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>56</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">BRIL</td>
+                        <td class="expand"> Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                -
+                            
+                        </td>
+                        <td>-</td>
+                        <td>-</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                chenodeoxycholic acid, cholic acid, deoxycholic acid, lithocholic acid
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Chen G, Wang X, Ge Y, Ma L, Chen Q, Liu H, Du Y, Ye RD, Hu H, Ren R
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1038/S41392-020-00262-Z">
+                            10.1038/S41392-020-00262-Z
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2020-09-02</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr model_id="378" role="row" class="even">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="378"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P07550">ADRB2</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/adrb2_human">β<sub>2</sub></a></td>
+                        <td class="expand"><span>Adrenoceptors</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="7BZ2">7BZ2</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/7BZ2_refined">7BZ2_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.8</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">69</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>50</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                Formoterol
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/3083544" target="_blank">pubchem</a>
+                            
+                                <a href="https://www.ebi.ac.uk/chembl/compound/inspect/CHEMBL1363" target="_blank">chembl_ligand</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                (-)-adrenaline, (-)-noradrenaline, noradrenaline, Zn<sup>2+</sup>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Zhang Y, Yang F, Ling S, Lv P, Zhou Y, Fang W, Sun W, Zhang L, Shi P, Tian C
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1038/S41421-020-0176-9">
+                            10.1038/S41421-020-0176-9
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2020-08-05</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr class="repr-st odd" model_id="61" role="row">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="61"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/Q9Y2T5">GPR52</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/gpr52_human"><i>GPR52</i></a></td>
+                        <td class="expand"><span>A orphans</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="6LI3">6LI3</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/6LI3_refined">6LI3_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.3</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">79</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            Mini-Gs
+                        </td>
+                        <td>61</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                Apo (no ligand)
+                            
+                                <br>
+                            
+                        </td>
+                        <td>none</td>
+                        <td>Apo (no ligand)</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                -
+                            
+                        </td>
+                        <td>-</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Lin X, Li M, Wang N, Wu Y, Luo Z, Guo S, Han G, Li S, Yue Y, Wei X, Xie X, Chen Y, Zhao S, Wu J, Lei M, Xu F
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1038/S41586-020-2019-0">
+                            10.1038/S41586-020-2019-0
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2020-02-26</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr model_id="500" role="row" class="even">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="500"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P07550">ADRB2</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/adrb2_human">β<sub>2</sub></a></td>
+                        <td class="expand"><span>Adrenoceptors</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="6NI3">6NI3</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/6NI3_refined">6NI3_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.8</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">69</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>59</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">Nanobody-35</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                BI-167107
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/49837874" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                (-)-adrenaline, (-)-noradrenaline, noradrenaline, Zn<sup>2+</sup>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Nguyen AH, Thomsen ARB, Cahill TJ, Huang R, Huang L, Marcink T, Clarke OB, Heissel S, Masoudi A, Ben-Hail D, Samaan F, Dandey VP, Tan YZ, Hong C, Mahoney JP, Triest S, Little J, Chen X, Sunahara R, Steyaert J, Molina H, Yu Z, des Georges A, Lefkowitz RJ
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1038/S41594-019-0330-Y">
+                            10.1038/S41594-019-0330-Y
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2019-11-20</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr model_id="276" role="row" class="odd">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="276"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P07550">ADRB2</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/adrb2_human">β<sub>2</sub></a></td>
+                        <td class="expand"><span>Adrenoceptors</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            X-ray
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="6E67">6E67</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/6E67_refined">6E67_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.7</td>
+                        <td class="text-center">B</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">72</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_bovin">αs</a></td>
+                        
+                        <td class="expand">
+                            Fused partial Gs
+                        </td>
+                        <td>4</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">T4-Lysozyme</td>
+                        <td class="expand">-</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                BI-167107
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/49837874" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                (-)-adrenaline, (-)-noradrenaline, noradrenaline, Zn<sup>2+</sup>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Liu X, Xu X, Hilger D, Aschauer P, Tiemann JK, Du Y, Liu H, Hirata K, Sun X, Guixà-González R, Mathiesen JM, Hildebrand PW, Kobilka BK
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1016/J.CELL.2019.04.021">
+                            10.1016/J.CELL.2019.04.021
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2019-06-05</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr model_id="152" role="row" class="even">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="152"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P29274">AA2AR</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/aa2ar_human">A<sub>2A</sub></a></td>
+                        <td class="expand"><span>Adenosine</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            cryo-EM
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="6GDG">6GDG</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/6GDG_refined">6GDG_refined</a>
+                            
+                        </td>
+                        <td class="text-center">4.1</td>
+                        <td class="text-center">A</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">64</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>57</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">TrxA</td>
+                        <td class="expand"> Nanobody</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                NECA
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/448222" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                adenosine
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            García-Nafría J, Lee Y, Bai X, Carpenter B, Tate CG
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.7554/ELIFE.35946">
+                            10.7554/ELIFE.35946
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2018-05-16</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr class="repr-st odd" model_id="85" role="row">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="85"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P29274">AA2AR</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/aa2ar_human">A<sub>2A</sub></a></td>
+                        <td class="expand"><span>Adenosine</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            X-ray
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="5G53">5G53</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/5G53_refined">5G53_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.4</td>
+                        <td class="text-center">A</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">68</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_human">αs</a></td>
+                        
+                        <td class="expand">
+                            Engineered G protein
+                        </td>
+                        <td>50</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">-</td>
+                        <td class="expand">-</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                NECA
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/448222" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                adenosine
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Carpenter B, Nehmé R, Warne T, Leslie AGW, Tate CG
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1038/NATURE18966">
+                            10.1038/NATURE18966
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2016-08-03</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr><tr class="repr-st even" model_id="120" role="row">
+                    
+                        <!-- Receptor -->
+                        <td class="text-center"><input class="alt" type="checkbox" id="120"></td>
+                        <td class="sorting_2"><span><a target="_blank" href="http://www.uniprot.org/uniprot/P07550">ADRB2</a></span></td>
+                        <td class="uniprot"><a target="_blank" href="/protein/adrb2_human">β<sub>2</sub></a></td>
+                        <td class="expand"><span>Adrenoceptors</span></td>
+                        <td class="expand" style="max-width: 30px;"><span>A (Rhodopsin)</span></td>
+                        <td class="expand">Human</td>
+                        <!-- Structure -->
+                        <td>
+                            X-ray
+                        </td>
+                        <td class="pdb text-left">
+                            <a target="_blank" href="3SN6">3SN6</a>
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="homology_models/3SN6_refined">3SN6_refined</a>
+                            
+                        </td>
+                        <td class="text-center">3.2</td>
+                        <td class="text-center">R</td>
+                        <td>Active</td>
+                        <td class="text-center">100</td>
+                        <td class="text-center">69</td>
+                        <!-- Signal protein -->
+                        <td>Gs</td>
+                        
+                            <td><a target="_blank" href="/signprot/gnas2_bovin">αs</a></td>
+                        
+                        <td class="expand">
+                            -
+                        </td>
+                        <td>89</td>
+                        <!-- Auxiliary protein -->
+                        <td class="expand">T4-Lysozyme</td>
+                        <td class="expand"> Antibody</td>
+                        <!-- Structure ligand -->
+                        <td class="expand">
+                            
+                                BI-167107
+                            
+                                <a href="https://pubchem.ncbi.nlm.nih.gov/compound/49837874" target="_blank">pubchem</a>
+                            
+                                <br>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <td>Agonist</td>
+                        <!-- Endogenous ligand -->
+                        <td class="expand">
+                            
+                                (-)-adrenaline, (-)-noradrenaline, noradrenaline, Zn<sup>2+</sup>
+                            
+                        </td>
+                        <td>small molecule</td>
+                        <!-- Sodium ion site -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                        <td>
+                            
+                            No
+                            
+                        </td>
+                        <!-- Reference -->
+                        <td class="expand">
+                            
+                            Rasmussen SGF, DeVree BT, Zou Y, Kruse AC, Chung KY, Kobilka TS, Thian FS, Chae PS, Pardon E, Calinski D, Mathiesen JM, Shah STA, Lyons JA, Caffrey M, Gellman SH, Steyaert J, Skiniotis G, Weis WI, Sunahara RK, Kobilka BK
+                            
+                        </td>
+                        <td>
+                            
+                            <a target="_blank" href="https://dx.doi.org/10.1038/NATURE10361">
+                            10.1038/NATURE10361
+                            </a>
+                            
+                        </td>
+                        <td class="sorting_1">2011-07-20</td>
+                        <!-- Annotated -->
+                        <td>
+                            
+                            Yes
+                            
+                        </td>
+                    </tr></tbody>
+            </table></table></body></html>
