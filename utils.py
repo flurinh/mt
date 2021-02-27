@@ -114,7 +114,7 @@ def alignmenttoindex(seq: str, seg: str, min_len=0, verbose=0):
 # ======================================================================================================================
 
 
-def get_alignment(prots, segments = ['TM7', 'ICL4', 'H8']):
+def get_alignment(prots, segments=['TM7', 'ICL4', 'H8']):
     # Define secondary structure elements of interest
     seg_aligns = pd.DataFrame()
     seg_aligns['name'] = prots
@@ -126,6 +126,9 @@ def get_alignment(prots, segments = ['TM7', 'ICL4', 'H8']):
         seg_aligns[s] = dp
     return seg_aligns
 
+
+def get_rcsb_download(id):
+    return 'https://files.rcsb.org/download/'+id+'.pdb'
 
 def get_seq(chain):
     # chain to sequence
@@ -142,7 +145,7 @@ def get_phi_psi_list(chain, verbose=0):
     # Use C–N distance to find polypeptides (comp. pdb docs)
     polypeptides = PPBuilder().build_peptides(chain)
     polys = []
-    for poly_index, poly in enumerate(polypeptides) :
+    for poly_index, poly in enumerate(polypeptides):
         if verbose > 0:
             print("(part %i of %i)" % (poly_index+1, len(polypeptides)))
             print("length %i" % (len(poly)))
@@ -151,7 +154,7 @@ def get_phi_psi_list(chain, verbose=0):
         phi_psi = poly.get_phi_psi_list()
         seq = poly.get_sequence()
         if verbose > 0:
-            for res_index, residue in enumerate(poly) :
+            for res_index, residue in enumerate(poly):
                 res_name = "%s%i" % (residue.resname, residue.id[1])
                 print(res_name, phi_psi[res_index])
         polys.append([len(seq), seq, phi_psi])
@@ -161,7 +164,7 @@ def get_phi_psi_list(chain, verbose=0):
 def get_sec_structs(prot_id: str, seq: str, seg_aligns: pd.DataFrame):
     # return start of secondary
     segments = seg_aligns.keys()[1:]  # ignore name-column
-    sec_seq = seg_aligns[seg_aligns['name'] == prot_id]
+    sec_seq = seg_aligns[seg_aligns['name'] == prot_id].copy()
     # this creates a copy of a slice ==> gives a warning when value is set
     for s in segments:
         seg = sec_seq[s].values[0]

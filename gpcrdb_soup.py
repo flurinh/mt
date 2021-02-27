@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import re
 import pandas as pd
 
 
@@ -15,10 +16,15 @@ def getpage(url='https://gpcrdb.org/structure/#'):
     return soup
 
 
+def get_rcsb_download(id):
+    return 'https://files.rcsb.org/download/'+id+'.pdb'
+
+
 def find_table(soup):
     table = soup.find("tbody")
     chs = table.findChildren(['tr', 'td'])
-    pdb = soup.findAll("a", {"target": "_blank"}, href=True)
+    # pdb = soup.findAll("a", {"target": "_blank"}, href=True)
+    pdb = soup.findAll('a', attrs={'href': re.compile('structure')})
     pdb_links = []
     refined_links = []
     uniprot_links = []
@@ -31,12 +37,10 @@ def find_table(soup):
         #     pubchem.append(href)
         # elif href.find('uniprot'):
         #     uniprot_links.append(href)
-
         # elif href.find('/protein/'):
         #     protein_links.append(href)
         # elif href.find('/signprot/'):
         #     signprot_links.append(href)
-
         if link.string and link.string.isalnum():
             s = link.string
             if len(s) == 4:
@@ -44,10 +48,10 @@ def find_table(soup):
             elif s.find('refined'):
                 refined_links.append(href)
     print(pdb_links)
-    print(len(pdb_links))
+    # print(len(pdb_links))
     # print(refined_links)
-    print(len(refined_links))
-    print("\n\n\n")
+    # print(len(refined_links))
+    # print("\n\n\n")
     output = []
     for c in chs:
         if 'href' in c:

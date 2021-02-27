@@ -10,7 +10,7 @@ from operator import is_not
 # Check project file structure
 
 # Prepare / Download GPCRdb receptor data table
-"""
+
 if os.path.isfile('data/structure.csv'):
     # print("Loading GPCRdb receptor data table...")
     df = pd.read_csv('data/structure.csv')
@@ -18,7 +18,8 @@ else:
     page = getpage()
     table = find_table(page)
     df = create_structure_df(table)
-    df.to_csv('data/structure.csv')"""
+    df.to_csv('data/structure.csv')
+    
 
 page = getpage()
 table = find_table(page)
