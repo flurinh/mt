@@ -1,21 +1,25 @@
 import os
 from os import walk
 import pandas as pd
+
+import urllib
 import requests
+import re
 from urllib.request import urlopen
 import json
-from Bio.PDB import *
+
 import warnings
+from Bio.PDB import *
 from Bio.PDB.PDBExceptions import PDBConstructionWarning
 warnings.simplefilter('ignore', PDBConstructionWarning)
 # pdb files contain an 'END' tag, which throws (unnecessary?) warnings
 
 
-def getpdbsfiles(path='data/active/'):
+def get_pdb_files(path='data/pdb/active/'):
     # just a helper function that returns all pdb files in specified path
     (_, _, filenames) = next(os.walk(path))
     files = [path + x for x in filenames]
-    prots = list(set([x[-20:-9] for x in files]))
+    prots = list(set([x[-8:-4] for x in files]))
     return files, prots
 
 
@@ -34,46 +38,34 @@ def getuniprot(path='data/uniprot/'):
         human_gpcr_d.update({i: {'gene': x[0], 'id': x[1], 'name': x[2]}})
     return pd.DataFrame.from_dict(human_gpcr_d).T
 
-
-def download_refined_structure(prot_id: str, folder: str):
-    url = 'https://gpcrdb.org/structure/homology_models/' + prot_id + '_refined_full/download_pdb'
-    print("Downloading refined structure for {}.".format(prot_id))
-    try:
-        r = requests.get(url)
-        zipfname = folder + '/' + prot_id + '.zip'
-        with open(zipfname, 'wb') as f:
-            f.write(r.content)
-        import zipfile
-        with zipfile.ZipFile(zipfname, "r") as zip_ref:
-            zip_ref.extractall(folder)
-        os.remove(zipfname)
-        return True
-    except Exception:
-        print("Did not fined refined structure for {}!".format(prot_id))
-        return False
+    
+def uniprottopdb(uniprot_id: str):
+    time.sleep(.01)
+    url = 'https://www.uniprot.org/uniprot/'
+    params = {
+        'format': 'tab',
+        'query': 'ID:{}'.format(uniprot_id),
+        'columns': 'id,database(PDB)'
+    }
+    contact = ""  # "hidberf@student.ethz.ch"
+    headers = {'User-Agent': 'Python {}'.format(contact)}
+    r = requests.get(url, params=params, headers=headers)
+    return str(r.text).splitlines()[-1].split('\t')[-1].split(';')[:-1]
 
 
-def getpdbfile(protid: str):
-    pdbl = PDBList()
-    pdbl.retrieve_pdb_file(protid)
-
-
-def pdbtouniprot(protid: str):
-    return None
-
-
-def uniprottopdb(protid: str):
-    return None
-
-
-def loadpdb(protid: str):
-    return None
-
-
-def updatepdbs(path="/data/pdb"):
-    pl = PDBList(path)
-    pl.update_pdb()
-
+def pdbtouniprot(pdb_id: str):
+    # time.sleep(.01)
+    url_template = "http://www.rcsb.org/pdb/files/{}.pdb"
+    url = url_template.format(pdb_id)
+    response = urllib.request.urlopen(url)
+    pdb = response.read().decode('utf-8')
+    response.close()
+    m = re.search('UNP\ +(\w+)', pdb)
+    if m != None:
+        return m.group(1)
+    else:
+        return None
+    
 # ======================================================================================================================
 
 
@@ -85,12 +77,20 @@ def get_seq(prot_id: str):
     return (protein_data['sequence'])
 
 
-def getalignment_(proteins: list, segment: str, verbose=0):
+def load_alignment_(path = 'data/alignments/GPCRdb_alignment_groupA_Gs.csv'):
+    return pd.read_csv(path)
+
+
+def getalignment_(proteins: list, segment: str, verbose=1):
     # fetch an alignment
     id1 = ','.join(proteins)
     url = 'https://gpcrdb.org/services/alignment/protein/' + id1 + '/' + segment + '/'
     if verbose > 0:
         print("Searching for alignment:", url)
+    """
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+    r = requests.get(url, headers=headers)
+    print(r)"""
     response = urlopen(url)
     alignment_data = json.loads(response.read().decode('utf-8'))
     return alignment_data

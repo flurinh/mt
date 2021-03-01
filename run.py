@@ -11,55 +11,48 @@ from operator import is_not
 
 # Prepare / Download GPCRdb receptor data table
 
-if os.path.isfile('data/structure.csv'):
-    # print("Loading GPCRdb receptor data table...")
-    df = pd.read_csv('data/structure.csv')
-else:
-    page = getpage()
-    table = find_table(page)
-    df = create_structure_df(table)
-    df.to_csv('data/structure.csv')
-    
+uniprot = False  # specify if we want to scrape for uniprot links ~
 
-page = getpage()
-table = find_table(page)
+# table = get_table(reload=True, save=True, uniprot=uniprot)
 
-# Data download
+table = get_table(reload=False)
 
-# 1) define filters
-print(COLS)
+df = table
 
 # This is the thing we might want to specify with argparse
 filtered = df[df['Cl.'].str.contains('A')]
 filtered = filtered[filtered['Species'].str.contains('Human')]
-"""
-# 2)
+
 # 2.1) find active state (complex i.p.)
 filtered_complex = filtered[filtered['Family'].str.contains('Gs')]
 active = filtered_complex[filtered_complex['State'].str.contains('Active')]
-# 2.2) download
 
-# 3.1) find inactive state
-inactive = filtered[filtered['State'].str.contains('Inactive')]
-# 3.2) download
+# Data loading
+files_a, prots_a = get_pdb_files(path='data/pdb/active')  # Get all downloaded pdb files in specified path
+print("Found {} proteins: {}.".format(len(prots_a), prots_a))
+
+# find inactive counter parts of the active proteins ==> use gene/uniprot, Family and species to match them
+
+genes = list(set(active['uniprot(gene)'].values.tolist()))
+print(genes)
+
+inactive = filtered[(filtered['uniprot(gene)'].isin(genes))
+                    & (filtered['State'].str.contains('Inactive'))
+                    & (filtered['Species'].str.contains('Human'))]
+
+# Data loading
+files_i, prots_i = get_pdb_files(path='data/pdb/inactive')  # Get all downloaded pdb files in specified path
+print("Found {} proteins: {}.".format(len(prots_i), prots_i))
+
+
+prots = [*prots_i, *prots_a]
+print(len(prots))
+
+
+seg_aligns = get_alignment(prots_a)
+
+print(yaml.dump(seg_aligns, default_flow_style=False))
 """
-
-
-# download single structure ('refined')
-"""
-Refined structures
-GPCRdb provides regularly updated refined structures where missing segments are modeled using the GPCRdb homology
-modeling pipeline (Pándy-Szekeres et al. 2018). This entails modeling missing segments (helix ends, loops, H8),
-reverting mutations to wild type and remodeling distorted regions based on our in-house manual structure curation.
-The refined structures are available on the Structures (gpcrdb.org/structure) and Structure models pages
-(gpcrdb.org/structure/homology_models).
-"""
-
-# download_refined_structure('7DDZ', 'data/sandbox')
-
-# idea is to filter the df, use download script to download / load the selection
-
-
 # Data loading
 files, prots = getpdbsfiles()  # Get all downloaded pdb files in specified path
 # print("Found {} pdb files: {}.".format(len(prots), prots))
@@ -74,9 +67,6 @@ def delta_phi_psi(phi_psi_1: list, phi_psi_2: list):
 
 
 def create_datatable(files):
-    """
-    input: filenames of pdb files to analyse
-    """
     parser = PDBParser()
     struct_lists = []
     for i, f in enumerate(files):
@@ -108,7 +98,7 @@ def create_datatable(files):
             'sec_structs'])
         struct_lists.append(df)
     return pd.concat(struct_lists, ignore_index=True)
-
+"""
 """
 table = create_datatable(files)
 table.to_csv('readout.csv')
