@@ -11,6 +11,8 @@ import numpy as np
 from Bio import pairwise2
 # Import format_alignment method
 from Bio.pairwise2 import format_alignment
+import ast
+
 
 
 def clean_alignment(al_df):
@@ -112,10 +114,51 @@ def get_align_dict(full: pd.DataFrame):
         l.append(a_s)
     a_df = pd.DataFrame(columns=cols)
     a_df = a_df.append(l, True)
-    return full.merge(a_df, how='inner', left_on='PDB', right_on='PDB')
+    return full.merge(a_df, how='inner', left_on='PDB', right_on='PDB')  # ignore_index=True
+
+
+def complete_data(full: pd.DataFrame, max_std_alignment=10, target='NPFIY'):
+    # get alignment: https://towardsdatascience.com/pairwise-sequence-alignment-using-biopython-d1a9d0ba861f
+    complete = get_align_dict(full)
+    # filter by maximum alignment standard deviation (basically if it is wrong)
+    complete = complete[complete['std'] < max_std_alignment]
+    # extract target sequence from the TM7
+    complete['target_wrt_tm7'] = complete.apply(lambda x: align_seg_to_seq([x.TM7_combined, target, x.PDB]), axis=1)
+    return complete
+
+
+def get_target_df(complete: pd.DataFrame, target='NPXXY', valid=True):
+    def sum_start(a, b):
+        return a + b[0]
+    def sum_end(a, b):
+        return a + b[1]
+    def extend(ls):
+        is_list = isinstance(ls[0], list)
+        for i, l in enumerate(ls):
+            if is_list & i == 0:
+                out = l
+            elif is_list:
+                out.extend(l)
+            else:
+                return ls
+        return out
+    def clean_pps(x):
+        return ast.literal_eval(x.replace('Seq', '').replace('(', '').replace(')', ''))
+    target_df = complete[['PDB', 'uniprot(gene)', 'Resolution', 'PDB date', \
+                          'TM7_combined', 'score', 'prot_len', 'full_prot_seq']].copy()
+    target_df['pp_seqs'] = complete.apply(lambda x: clean_pps(x.pp_seqs), axis=1).copy()
+    target_df['pp_seq_lens'] = target_df.apply(lambda x: [len(y) for y in x.pp_seqs], axis=1).copy()
+    target_df['start'] = complete['target_wrt_tm7'].apply(lambda x: x[0]).copy()
+    target_df['end'] = complete['target_wrt_tm7'].apply(lambda x: x[1]).copy()
+    # target_df.loc[:, 'target_seq'] = target
+    target_df['start_absolute'] = complete.apply(lambda x: sum_start(x.start, x.target_wrt_tm7), axis=1).copy()
+    target_df['end_absolute'] = complete.apply(lambda x: sum_end(x.start, x.target_wrt_tm7), axis=1).copy()
+    target_df['full_aligned_seg'] = target_df.apply(lambda x: x.full_prot_seq[x.start_absolute:x.end_absolute], axis=1)
+    target_df['TM7_aligned_seg'] = target_df.apply(lambda x: x.TM7_combined[x.start:x.end], axis=1)
+    target_df['psi_phi'] = complete.apply(lambda x: extend(ast.literal_eval(x.psi_phi)), axis=1)
+    if valid:
+        target_df['target_angles'] = target_df['psi_phi'][target_df['start_absolute']:target_df['end_absolute']]
+        return target_df[target_df['full_aligned_seg']==target_df['TM7_aligned_seg']]
+    else:
+        return target_df
         
-"""
-def disp3(df: pd.DataFrame):
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-        display(df.head(3))
-"""
