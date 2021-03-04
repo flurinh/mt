@@ -14,7 +14,6 @@ from Bio.pairwise2 import format_alignment
 import ast
 
 
-
 def clean_alignment(al_df):
     for i, c in enumerate(al_df):
         if i == 0:

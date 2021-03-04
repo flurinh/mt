@@ -164,10 +164,6 @@ def getpdbfile(protid: str):
     pdbl = PDBList()
     pdbl.retrieve_pdb_file(protid)
 
-    
-def loadpdb(protid: str):
-    return None
-
 
 def updatepdbs(path="/data/pdb"):
     pl = PDBList(path)
