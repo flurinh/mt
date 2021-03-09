@@ -79,7 +79,7 @@ def structure_to_full(table: pd.DataFrame, structure: pd.DataFrame, alignments: 
     return full
 
 
-def align_seg_to_seq(z):
+def align_seg_to_seq(z, padding=None, padding_l=None, padding_r=5):
     X = z[0]
     Y = z[1]
     pdb = z[2]
@@ -97,6 +97,13 @@ def align_seg_to_seq(z):
     start = matching.index(1)
     # get end
     end = len(matching) - matching[::-1].index(1)
+    if padding != None:
+        start = max(0, start-padding)
+        end = min(len(X), end+padding)
+    if padding_l != None:
+        start = max(0, start-padding_l)
+    if padding_r != None:
+        end = min(len(X), end+padding_r)
     return start, end, mean, std, score, res_id, pdb
 
 
@@ -116,11 +123,18 @@ def get_align_dict(full: pd.DataFrame):
     return full.merge(a_df, how='inner', left_on='PDB', right_on='PDB')  # ignore_index=True
 
 
-def complete_data(full: pd.DataFrame, max_std_alignment=10, target='NPFIY'):
+def complete_data(full: pd.DataFrame, max_std_alignment=None, elongate=True, padding_r=5, target='NPFIY', filter_bad_checks=False):
     # get alignment: https://towardsdatascience.com/pairwise-sequence-alignment-using-biopython-d1a9d0ba861f
     complete = get_align_dict(full)
     # filter by maximum alignment standard deviation (basically if it is wrong)
-    complete = complete[complete['std'] < max_std_alignment]
+    if max_std_alignment!=None:
+        complete = complete[complete['std'] < max_std_alignment]
+    # replace the TM7 with an elongated version
+    if elongate:
+        complete['TM7_found'] = complete.apply(lambda x: x.full_prot_seq[x.start:x.end+padding_r], axis=1)
+        if filter_bad_checks:
+            max_diff = 15  # maximum difference in sequence lengths between detected and true TM7 region
+            complete = complete[complete['TM7_combined'].map(len) + max_diff - complete['TM7_found'].map(len) >= 0]
     # extract target sequence from the TM7
     complete['target_wrt_tm7'] = complete.apply(lambda x: align_seg_to_seq([x.TM7_combined, target, x.PDB]), axis=1)
     return complete
@@ -144,7 +158,7 @@ def get_target_df(complete: pd.DataFrame, target='NPXXY', valid=True):
     def clean_pps(x):
         return ast.literal_eval(x.replace('Seq', '').replace('(', '').replace(')', ''))
     target_df = complete[['PDB', 'uniprot(gene)', 'Resolution', 'PDB date', \
-                          'TM7_combined', 'score', 'prot_len', 'full_prot_seq']].copy()
+                          'TM7_found', 'score', 'prot_len', 'full_prot_seq']].copy()
     target_df['pp_seqs'] = complete.apply(lambda x: clean_pps(x.pp_seqs), axis=1).copy()
     target_df['pp_seq_lens'] = target_df.apply(lambda x: [len(y) for y in x.pp_seqs], axis=1).copy()
     target_df['start'] = complete['target_wrt_tm7'].apply(lambda x: x[0]).copy()
@@ -153,7 +167,7 @@ def get_target_df(complete: pd.DataFrame, target='NPXXY', valid=True):
     target_df['start_absolute'] = complete.apply(lambda x: sum_start(x.start, x.target_wrt_tm7), axis=1).copy()
     target_df['end_absolute'] = complete.apply(lambda x: sum_end(x.start, x.target_wrt_tm7), axis=1).copy()
     target_df['full_aligned_seg'] = target_df.apply(lambda x: x.full_prot_seq[x.start_absolute:x.end_absolute], axis=1)
-    target_df['TM7_aligned_seg'] = target_df.apply(lambda x: x.TM7_combined[x.start:x.end], axis=1)
+    target_df['TM7_aligned_seg'] = target_df.apply(lambda x: x.TM7_found[x.start:x.end], axis=1)
     target_df['psi_phi'] = complete.apply(lambda x: extend(ast.literal_eval(x.psi_phi)), axis=1)
     if valid:
         target_df['target_angles'] = target_df['psi_phi'][target_df['start_absolute']:target_df['end_absolute']]
