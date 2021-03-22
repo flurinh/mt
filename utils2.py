@@ -15,6 +15,7 @@ import ast
 
 
 def clean_alignment(al_df):
+    print("cleaning alignment")
     for i, c in enumerate(al_df):
         if i == 0:
             al_df = al_df.rename(columns={c: 'ID'})
@@ -22,16 +23,20 @@ def clean_alignment(al_df):
             al_df = al_df.rename(columns={c:seg})
         else:
             seg = c
-    positions = al_df.iloc[0].values
+    positions = [x for x in list(al_df.iloc[0].values) if '.' in str(x)]
     al_df['clean_id'] = al_df.ID.apply(lambda x: str(x).replace('[Human] ', '').replace('&amp', '').replace(';',''))
-    al_df['TM7_combined'] = al_df.TM7.agg(''.join, axis=1).apply(lambda x: x.replace('-','').replace('_',''))
-    al_df['H8_combined'] = al_df.H8.agg(''.join, axis=1).apply(lambda x: x.replace('-','').replace('_',''))
+    al_df['TM7_combined'] = al_df.TM7.agg(''.join, axis=1).apply(lambda x: x.replace('-','_'))
+    al_df['TM7_clean'] = al_df.TM7_combined.apply(lambda x: x.replace('_',''))
+    al_df['H8_combined'] = al_df.H8.agg(''.join, axis=1).apply(lambda x: x.replace('-','_'))
+    al_df['H8_clean'] = al_df.H8_combined.apply(lambda x: x.replace('_',''))
     columns = list(set(list(al_df.columns)))
     del_cols = list(filter(lambda x: (('combined' not in x) and ('clean' not in x) and ('ID' not in x)), columns))
     for cols in del_cols:
         del al_df[cols]
     al_df = al_df.drop(0)
-    return al_df
+    al_df['roi_pos'] = al_df.apply(lambda x: [z[0] for z in list(zip(positions, x.TM7_combined+x.H8_combined)) if not '_' in z[1]], axis=1)
+    al_df['roi_seq'] = al_df.apply(lambda x: x.TM7_clean+x.H8_clean, axis=1)
+    return al_df, positions
 
 
 def pdb_data(files, path='data/pdb/active/'):
@@ -40,12 +45,13 @@ def pdb_data(files, path='data/pdb/active/'):
     for i, f in enumerate(tqdm(files)):
         name = f[-8:-4]
         structure = parser.get_structure(id=name, file=f)
-        for model in structure:
-            for chain in model:
-                c = chain
+        for m, model in enumerate(structure):
+            for c, chain in enumerate(model):
+                if m + c == 0:
+                    first_chain = chain
         del structure
-        seq = get_seq(c)
-        polypeptides = get_phi_psi_list(c)
+        seq = get_seq(first_chain)
+        polypeptides = get_phi_psi_list(first_chain)
         pp_ids = []
         pp_lens = []
         pp_seqs = []
@@ -54,8 +60,8 @@ def pdb_data(files, path='data/pdb/active/'):
         for p, pp in enumerate(polypeptides):
             pp_ids.append(p)
             pp_lens.append(pp[0])
-            pp_seqs.append(pp[1])
-            psi_phi.append(pp[2])        
+            pp_seqs.append(str(pp[1]))
+            psi_phi.append(np.asarray(pp[2]))        
             data = [[name, len(seq), seq, pp_ids, pp_lens, pp_seqs, psi_phi]]
         df = pd.DataFrame(data=data, columns=['prot_id', 'prot_len', 'prot_seq', 'pp_ids', 'pp_lens','pp_seqs','psi_phi'])
         struct_lists.append(df)
@@ -74,6 +80,8 @@ def structure_to_full(table: pd.DataFrame, structure: pd.DataFrame, alignments: 
         del full['filler2']
     except:
         pass
+    full['uniprotid'] = full.apply(lambda x: pdbtouniprot(x.PDB), axis=1)
+    full['uniprot_seq'] = full.apply(lambda x: get_uniprot_seq(x.uniprotid), axis=1)
     # pp position information
     # return full table
     return full

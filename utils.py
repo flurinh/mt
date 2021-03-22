@@ -8,6 +8,9 @@ import re
 from urllib.request import urlopen
 import json
 
+from Bio import SeqIO
+from io import StringIO
+
 import warnings
 from Bio.PDB import *
 from Bio.PDB.PDBExceptions import PDBConstructionWarning
@@ -19,8 +22,8 @@ def get_pdb_files(path='data/pdb/active/'):
     # just a helper function that returns all pdb files in specified path
     (_, _, filenames) = next(os.walk(path))
     files = [path + x for x in filenames]
-    prots = list(set([x[-8:-4] for x in files]))
-    return files, prots
+    pdb_ids = list(set([x[-8:-4] for x in files]))
+    return files, pdb_ids
 
 
 def getuniprot(path='data/uniprot/'):
@@ -77,6 +80,17 @@ def get_seq(prot_id: str):
     return (protein_data['sequence'])
 
 
+def get_uniprot_seq(uniprotid: str):
+    if uniprotid is None:
+        return None
+    baseUrl="http://www.uniprot.org/uniprot/"
+    currentUrl = baseUrl + uniprotid + ".fasta"
+    response = requests.post(currentUrl)
+    cData = ''.join(response.text)
+    Seq = StringIO(cData)
+    return list(SeqIO.parse(Seq,'fasta'))
+
+
 def load_alignment_(path = 'data/alignments/GPCRdb_alignment_groupA_Gs.csv'):
     return pd.read_csv(path)
 
@@ -127,8 +141,9 @@ def get_alignment(prots, segments=['TM7', 'ICL4', 'H8']):
     return seg_aligns
 
 
-def get_rcsb_download(id):
-    return 'https://files.rcsb.org/download/'+id+'.pdb'
+def get_rcsb_download(id, fileformat='pdb'):
+    return 'https://files.rcsb.org/download/'+id+'.'+fileformat
+
 
 def get_seq(chain):
     # chain to sequence

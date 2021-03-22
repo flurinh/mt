@@ -68,7 +68,7 @@ def parse_html_table(table):
     return df
 
 
-def get_table(reload=False, uniprot=False, save=True, path='data/structure.csv'):
+def get_table(reload=False, uniprot=False, save=True, path='data/gpcrdb/structure.pkl'):
     if reload:
         soup = get_page()
         table = soup.find("tbody")
@@ -80,9 +80,9 @@ def get_table(reload=False, uniprot=False, save=True, path='data/structure.csv')
             table['uniprot_id'] = table.PDB.apply(pdbtouniprot)
             table['uniprot_link'] = table.uniprot_id.apply(get_uniprot_link)
         if save:
-            table.to_csv(path)
+            table.to_pickle(path)
     else:
-        table = pd.read_csv(path)
+        table = pd.read_pickle(path)
     return table
 
 
@@ -94,10 +94,10 @@ def create_structure_df(table):
     return pd.DataFrame(holder, columns=COLS)
 
 
-def get_rcsb_link(pdb_id: str):
+def get_rcsb_link(pdb_id: str, fileformat='pdb'):
     if len(pdb_id) == 4:
         try:
-            return 'https://files.rcsb.org/download/'+pdb_id+'.pdb'
+            return 'https://files.rcsb.org/download/'+pdb_id+'.'+fileformat
         except:
             return None
     else:
@@ -117,8 +117,8 @@ def get_uniprot_link(uniprot_id: str):
 
     
 def downloadzip(url: str, folder: str):
-    if not os.path.isdir('data/'+folder):
-        os.mkdir('data/'+folder)
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
     try:
         r = requests.get(url)
         zipfname = folder + '/' + prot_id + '.zip'
@@ -134,24 +134,25 @@ def downloadzip(url: str, folder: str):
         return False
 
     
-def download(url: str, folder: str):
-    if not os.path.isdir('data/'+folder):
-        os.mkdir('data/'+folder)
+def download(url: str, folder: str, fileformat: str):
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
     try:
         r = requests.get(url)
-        fname = 'data/'+folder + '/' + url[-8:-4] + '.pdb'
+        loc = len(fileformat)+1
+        fname = folder + '/' + url[-(loc+4):-loc] + '.' + fileformat
         with open(fname, 'wb') as f:
             f.write(r.content)
     except Exception:
         print("Url invalid:", url)
 
     
-def download_pdb(url, folder=''):
-    download(url, 'pdb/'+folder)
+def download_pdb(url, folder, fileformat):
+    download(url, folder, fileformat)
 
 
-def download_uniprot(url):
-    download(url, 'uniprot')
+def download_uniprot(url, folder, fileformat):
+    download(url, folder, fileformat)
 
 
 def download_refined_structure(prot_id: str):
@@ -162,13 +163,9 @@ def download_refined_structure(prot_id: str):
 
 def getpdbfile(protid: str):
     pdbl = PDBList()
-    pdbl.retrieve_pdb_file(protid)
+    return pdbl.retrieve_pdb_file(protid)
 
 
 def updatepdbs(path="/data/pdb"):
     pl = PDBList(path)
-    pl.update_pdb()
-
-
-
-
+    return pl.update_pdb()
