@@ -6,6 +6,7 @@ import urllib
 import requests
 import re
 from urllib.request import urlopen
+from bs4 import BeautifulSoup
 import json
 
 from Bio import SeqIO
@@ -68,6 +69,36 @@ def pdbtouniprot(pdb_id: str):
         return m.group(1)
     else:
         return None
+    
+
+def get_uniprot(query='',query_type='PDB_ID'):
+    #query_type must be: "PDB_ID" or "ACC"
+    url = 'https://www.uniprot.org/' #This is the webser to retrieve the Uniprot data
+    params = {
+    'from':query_type,
+    'to':'ACC',
+    'format':'txt',
+    'query':query
+    }
+
+    data = urllib.parse.urlencode(params)
+    data = data.encode('ascii')
+    request = urllib.request.Request(url, data)
+    with urllib.request.urlopen(request) as response:
+        res = response.read()
+        page=BeautifulSoup(res, features="lxml").get_text()
+        page=page.splitlines()
+    return page
+    
+def get_sequence_name(cID):
+    baseUrl="http://www.uniprot.org/uniprot/"
+    currentUrl=baseUrl+cID+".fasta"
+    response = requests.post(currentUrl)
+    cData=''.join(response.text)
+
+    Seq=StringIO(cData)
+    pSeq=list(SeqIO.parse(Seq,'fasta'))
+    return str(pSeq[0].seq), pSeq[0].name
     
 # ======================================================================================================================
 
