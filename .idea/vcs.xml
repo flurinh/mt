@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/data/gpcrdb_data" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/gpcrdb_data" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/protwis" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/protwis_vagrant" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/protwis_vagrant/protwis_puppet_modules" vcs="Git" />
