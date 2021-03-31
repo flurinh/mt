@@ -95,7 +95,6 @@ def get_sequence_name(cID):
     currentUrl=baseUrl+cID+".fasta"
     response = requests.post(currentUrl)
     cData=''.join(response.text)
-
     Seq=StringIO(cData)
     pSeq=list(SeqIO.parse(Seq,'fasta'))
     return str(pSeq[0].seq), pSeq[0].name

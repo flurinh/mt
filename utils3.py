@@ -7,7 +7,7 @@ api_base = base_url + "api/"
 uniprot_mapping_url = api_base + 'mappings/uniprot/'
 
 
-def make_request(url, mode, pdb_id):
+def make_request(url, mode, pdb_id=None, data=None):
     """
     This function can make GET and POST requests to
     the PDBe API
@@ -20,8 +20,7 @@ def make_request(url, mode, pdb_id):
     if mode == "get":
         response = requests.get(url=url+pdb_id)
     elif mode == "post":
-        response = requests.post(url, data=pdb_id)
-
+        response = requests.post(url, data=data)
     if response.status_code == 200:
         return response.json()
     else:
@@ -42,11 +41,9 @@ def get_mappings_data(pdb_id):
     # with bad PDB ids
     if not re.match("[0-9][A-Za-z][A-Za-z0-9]{2}", pdb_id):
         print("Invalid PDB id")
-        return None
-    
+        return None    
     # GET the mappings data
     mappings_data = make_request(uniprot_mapping_url, "get", pdb_id)
-    
     # Check if there is data
     if not mappings_data:
         print("No data found")
@@ -62,17 +59,15 @@ def list_uniprot_pdb_mappings(pdb_id):
     :param pdb_id: String,
     :return: None
     """
-    
     # Getting the mappings data
     mappings_data = get_mappings_data(pdb_id)
-    
     # If there is no data, return None
     if not mappings_data:
         return None
     return mappings_data
 
 
-def get_uniprot_pdb_residue_mapping(pdb_id, chain_id, residue_number):
+def get_uniprot_pdb_residue_mapping(pdb_id, chain_id):
     """
     This function uses get_mappings_data() function
     to retrieve mappings between UniProt and PDB
@@ -81,26 +76,22 @@ def get_uniprot_pdb_residue_mapping(pdb_id, chain_id, residue_number):
     
     :param pdb_id: String,
     :param chain_id: String,
-    :param residue_number: String,
     :return: Integer
     """
-    
     mappings_data = get_mappings_data(pdb_id)
-    
     if not mappings_data:
         return None
-    
-    uniprot = mappings_data[pdb_id]["UniProt"]
-    for uniprot_id in uniprot:
-        for i in range(len(uniprot[uniprot_id]["mappings"])):
-            mapping = uniprot[uniprot_id]["mappings"][i]
-            if not mapping["chain_id"] == chain_id:
-                continue
-            pdb_start = mapping["start"]["residue_number"]
-            pdb_end = mapping["end"]["residue_number"]
-            uniprot_start = mapping["unp_start"]
-            uniprot_end = mapping["unp_end"]
-            if residue_number >= pdb_start and residue_number <= pdb_end:
-                offset = uniprot_start - pdb_start
-                return residue_number + offset
-    return uniprot
+    uniprot = None
+    for _ in mappings_data[pdb_id.lower()]['UniProt']:
+        if mappings_data[pdb_id.lower()]['UniProt'][_]['mappings'][0]['chain_id'] == chain_id:
+            uniprot = _
+            identifier = mappings_data[pdb_id.lower()]['UniProt'][_]['identifier']
+            end = mappings_data[pdb_id.lower()]['UniProt'][_]['mappings'][0]['end']['residue_number']
+            start = mappings_data[pdb_id.lower()]['UniProt'][_]['mappings'][0]['start']['residue_number']
+            unp_end = mappings_data[pdb_id.lower()]['UniProt'][_]['mappings'][0]['unp_end']
+            unp_start = mappings_data[pdb_id.lower()]['UniProt'][_]['mappings'][0]['unp_start']
+        else:
+            pass
+    if uniprot == None:
+        return None, None, None, None, None, None
+    return uniprot, identifier, start, end, unp_start, unp_end
