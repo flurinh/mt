@@ -44,7 +44,6 @@ def getuniprot(path='data/uniprot/'):
 
     
 def uniprottopdb(uniprot_id: str):
-    time.sleep(.01)
     url = 'https://www.uniprot.org/uniprot/'
     params = {
         'format': 'tab',
