@@ -39,14 +39,12 @@ def get_mappings_data(pdb_id):
     # Check if the provided PDB id is valid
     # There is no point in making an API call
     # with bad PDB ids
-    print("getting the mapping...")
     if not re.match("[0-9][A-Za-z][A-Za-z0-9]{2}", pdb_id):
         print("Invalid PDB id")
         return None    
     # GET the mappings data
     mappings_data = make_request(uniprot_mapping_url, "get", pdb_id)
     # Check if there is data
-    print("got the mapping")
     if not mappings_data:
         print("No data found")
         return None
