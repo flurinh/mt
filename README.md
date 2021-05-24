@@ -1,2 +1,0 @@
-# mt
-master thesis project

@@ -1,16 +1,9 @@
-from utils import *
-from gpcrdb_soup import *
-import Bio
-import yaml
-import os
-from functools import partial
-from operator import is_not
+from deprecated.gpcrdb_soup import *
 from tqdm import tqdm
 import numpy as np
 # Import pairwise2 module
 from Bio import pairwise2
 # Import format_alignment method
-from Bio.pairwise2 import format_alignment
 import ast
 
 
