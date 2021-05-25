@@ -1,6 +1,6 @@
 from utils3 import *
-from deprecated.plotting import *
-from deprecated.gpcrdb_soup import *
+import pandas as pd
+import os
 import sys
 import functools
 import operator
