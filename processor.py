@@ -452,6 +452,7 @@ class CifProcessor():
     def filter_dfl_via_table(self,
                              Species=None,
                              State=None,
+                             Cl=None,
                              Family=None,
                              Subtype=None,
                              Resolution=None,
@@ -462,6 +463,8 @@ class CifProcessor():
             data = data[data['Species']==Species]
         if State != None:
             data = data[data['State']==State]
+        if Cl != None:
+            data = data[data['Cl.'].str.contains(Cl)]
         if Family != None:
             data = data[data['Family']==Family]
         if Subtype != None:
