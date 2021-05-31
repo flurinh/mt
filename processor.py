@@ -7,6 +7,7 @@ import operator
 import random
 from tqdm import tqdm, trange
 import time
+import numpy as np
 import pandas
 from math import degrees
 import requests as r
@@ -28,6 +29,7 @@ class CifProcessor():
                  allow_exception=False):
         self.path = path
         self.structure_path = self.path + structure
+        self.raw_folder = path + 'raw/'
         self.path_table = path + 'gpcrdb/' + 'table.pkl'
         
         self.shuffle = shuffle
@@ -51,6 +53,7 @@ class CifProcessor():
                      'type_symbol', 'Cartn_x', 'Cartn_y', 'Cartn_z']
         self.numbering = pd.DataFrame()
         self.dfl_list = []
+        self.dfl = []
 
         self.g_dict1 = {
             'Gs':'αs',
@@ -111,33 +114,26 @@ class CifProcessor():
                         numb.columns = ['PDB', 'identifier', 'family', 'numbering']
                         self.numbering = self.numbering.append(numb, ignore_index=True)
 
-    def make_raws(self):
+    def make_raws(self, overwrite=False, folder='raw/'):
+        self.dfl = []
         for i, pdb_id in tqdm(enumerate(self.pdb_ids)):
             if i < self.limit:
                 # only process if the file has not already been generated
                 # if not self.reload & 
-                protein, family = self.get_prot_info(pdb_id)
-                if protein != None:
-                    if i == 0:
-                        self.structure = self.load_cifs(pdb_id)
-                        self.structure['identifier'] = protein.upper()
-                        if self.remove_hetatm:
-                            self.structure = self.structure[self.structure['group_PDB']!='HETATM']
-                            self.structure['label_seq_id'] = self.structure['label_seq_id'].astype(np.int64)
-                        self.structure['label_comp_sid'] = self.structure.apply(lambda x:
-                                                            gemmi.find_tabulated_residue(x.label_comp_id).one_letter_code, 
-                                                            axis=1)
-                    else:
+                if (not os.path.isfile(self.raw_folder + pdb_id + '.pkl')) or overwrite:
+                    protein, family = self.get_prot_info(pdb_id)
+                    if protein != None:
                         structure = self.load_cifs(pdb_id)
                         structure['identifier'] = protein.upper()
                         if self.remove_hetatm:
                             structure = structure[structure['group_PDB']!='HETATM']
-                            structure['label_seq_id'] = structure['label_seq_id'].astype(np.int64)
+                        structure['label_seq_id'] = structure['label_seq_id'].astype(np.int64)
                         structure['label_comp_sid'] = structure.apply(lambda x:
                                                             gemmi.find_tabulated_residue(x.label_comp_id).one_letter_code, 
                                                             axis=1)
-                        self.structure = self.structure.append(structure, ignore_index=True)
-        
+                        self.dfl.append(structure)
+        self.to_pkl(folder=self.raw_folder, overwrite=overwrite)
+                        
     # ==============================================================================================================
         
     def entry_to_ac(self, entry: str):
@@ -229,20 +225,24 @@ class CifProcessor():
         self.table.to_pickle(self.path + 'data_table.pkl')
         self.mappings.to_pickle(self.path + 'data_mappings.pkl')
     
-    def to_pkl_raw(self, folder='data/raw/', overwrite=False):
-        for pdb_id in self.pdb_ids:
-            structure = self.structure[self.structure['PDB']==pdb_id]
-            if len(structure) >= 1:
-                if (not os.path.isfile(folder + pdb_id + '.pkl')) or overwrite:
-                    structure.to_pickle(folder + pdb_id + '.pkl')
-                    print("writing to file:", folder + pdb_id + '.pkl')
-    
-    def to_pkl_processed(self, folder='data/processed/', overwrite=False):
+    def to_pkl(self, mode='', folder='data/processed/', overwrite=False):
         for df in self.dfl:
-            pdb_id = df['PDB'].unique()[0]
-            if (not os.path.isfile(folder + pdb_id + '.pkl')) or overwrite:
-                df.to_pickle(folder + pdb_id + '.pkl')
-                print("writing to file:", folder + pdb_id + '.pkl')
+            if len(df)<=0:
+                print('No data to write!')
+            else:
+                pdb_id = df['PDB'].unique()[0]
+                
+                if mode=='':
+                    filename = folder + pdb_id + '.pkl'
+                elif mode=='r':
+                    filename = folder + pdb_id + '_r.pkl'
+                elif mode=='g':
+                    filename = folder + pdb_id + '_g.pkl'
+                else:
+                    print("Mode not implemented")
+                
+                if (not os.path.isfile(filename)) or overwrite:
+                    df.to_pickle(filename)
     
     # ==============================================================================================================   
     
@@ -258,12 +258,13 @@ class CifProcessor():
             
     # ==============================================================================================================
     
-    def read_pkl_raw(self):
-        # not needed atm
-        pass
-    
-    def read_pkl_processed(self, mode='', folder='data/processed/'):
-        files = [f for f in os.listdir(folder) if '.pkl' in f]
+    def read_pkl(self, mode='', folder='data/processed/', limit=None):
+        if limit==None:
+            print("Keeping set limit {}!".format(self.limit))
+        else:
+            print("Setting limit to {}!".format(limit))
+            self.limit = limit
+        files = [f for f in os.listdir(folder) if '.pkl' in f][:self.limit]
         
         if 'g' in mode:
             # remove all files with "g-ending" -> refers to already processed data
@@ -299,10 +300,10 @@ class CifProcessor():
             dict_ = pd.DataFrame.from_dict(mappings_.iloc[j]['mappings'])
             dict_['identifier'] = identifier
             map_df_list.append(pd.DataFrame.from_dict(dict_))
-        _ = pd.concat(map_df_list)
-        _ = _[_['chain_id']==pref_chain]
-        _['PDB'] = pdb
-        return _
+        stacked_maps = pd.concat(map_df_list)
+        stacked_maps = stacked_maps[stacked_maps['chain_id']==pref_chain]
+        stacked_maps['PDB'] = pdb
+        return stacked_maps
 
 
     def get_generic_nums(self, pdb_id):
@@ -332,28 +333,17 @@ class CifProcessor():
             return ['', '', 0, 0]
 
 
-    def assign_generic_numbers_(self, pdb_id, overwrite, folder):
-        data = pd.read_pickle(folder + pdb_id + '.pkl').reset_index().drop('index', axis=1)
-        print("loaded data to assign gen. numbers from", folder + pdb_id + '.pkl')
+    # def _assign_res_nums_g(self, pdb_id, mappings, structure, uniprot_gprot_list, gprot_df, res_table):
+    def _assign_res_nums_r(self, structure):
+        pdb_id = structure['PDB'].iloc[0]
+        data = structure.reset_index().drop('index', axis=1)
         cols = data.columns
         columns = ['gen_pos', 'gen_pos1', 'gen_pos2', 'uniprot_comp_sid']
-        _ = [i for i in columns if i in cols]
-        if len(_) > 0:
-            if overwrite:
-                data.drop(_, axis=1, inplace=True)
-                data['label_2_uni'] = 0
-                data[columns[0]] = ''
-                data[columns[1]] = 0
-                data[columns[2]] = 0
-                data[columns[3]] = ''
-            else:
-                return data
-        else:
-            data['label_2_uni'] = 0
-            data[columns[0]] = ''
-            data[columns[1]] = 0
-            data[columns[2]] = 0
-            data[columns[3]] = ''
+        data['label_2_uni'] = 0
+        data['gen_pos'] = ''
+        data['gen_pos1'] = 0
+        data['gen_pos2'] = 0
+        data['uniprot_comp_sid'] = ''
         maps_stacked = self.get_stacked_maps(pdb_id)
         if 'residue_number' in maps_stacked.index:
             pass
@@ -408,26 +398,31 @@ class CifProcessor():
                   else [x.gen_pos, x.uniprot_comp_sid, x.gen_pos1, x.gen_pos2], axis=1, result_type='expand')
         return data
     
-    def assign_generic_numbers_r(self, pdb_ids=None, overwrite=True, folder='data/raw/'):
-        dfl_ = []
-        if pdb_ids != None:
-            self.pdb_ids = pdb_ids
-        if not isinstance(self.pdb_ids, list):
-            self.pdb_ids = [self.pdb_ids]
-        for pdb_id in self.pdb_ids:
+    def assign_generic_numbers_r(self, f=None, pdb_ids=None, overwrite=True, folder='data/processed/'):
+        if f!=None:
+            dfl_pdbs=list(set(list(f['PDB'])))
+        else:
+            dfl_pdbs=list(set(list(self.dfl_list)))
+        dfl_indices=self.get_dfl_indices(dfl_pdbs)
+        for i in trange(len(dfl_indices)):
             if self.allow_exception:
-                print("trying to assign generic nubmers to", pdb_id)
+                pdb_id = self.dfl_list[dfl_indices[i]]
+                if (os.path.isfile(folder + pdb_id + '.pkl')) or (overwrite==False):
+                    # load processed file instead of processing it anew
+                    pass
                 try:
-                    dfl_.append(self.assign_generic_numbers_(pdb_id, overwrite=overwrite, folder=folder))
-                    print("assigned generic numbers to", pdb_id, "\n\n\n")
+                    structure = self.dfl[dfl_indices[i]]
+                    s = self._assign_res_nums_r(structure)
+                    self.dfl[dfl_indices[i]] = s
                 except:
-                    print("assigning failed for", pdb_id)
+                    print("Error parsing", pdb_id)
             else:
-                print("trying to assign generic nubmers to", pdb_id)
-                dfl_.append(self.assign_generic_numbers_(pdb_id, overwrite=overwrite, folder=folder))
-                print("assigned generic numbers to", pdb_id, "\n\n\n")
-        self.dfl = dfl_
-        del dfl_
+                pdb_id = self.dfl_list[dfl_indices[i]]
+                structure = self.dfl[dfl_indices[i]]
+                s = self._assign_res_nums_r(structure)
+                self.dfl[dfl_indices[i]] = s
+        
+        self.to_pkl(mode='r', folder=folder, overwrite=overwrite)
     
     # ==============================================================================================================    
         
@@ -636,7 +631,7 @@ class CifProcessor():
         return self._make_cgn_df(a, b, res_num_df)
 
     
-    def _assign_res_nums_g(self, pdb_id, mappings, structure, uniprot_gprot_list, gprot_df, res_table):
+    def _assign_res_nums_g(self, pdb_id, mappings, structure, uniprot_gprot_list, gprot_df, res_table, fill_H5=False):
         try:
             maps_stacked = self.get_stacked_maps_g(pdb_id, mappings, uniprot_gprot_list)
         except:
@@ -699,12 +694,19 @@ class CifProcessor():
                             structure.at[line.index[0], 'gprot_pos'] = ''
             else:
                 return structure
+            
+            # TODO: IF FILL_H5: FILL FROM END OF CHAIN? WITH RES NUMS BACK TO H5 BEGINNING
+            
         return structure
     
     
-    def assign_generic_numbers_g(self, f, pdb_ids=None, overwrite=True, folder='data/raw/'):
+    def assign_generic_numbers_g(self, f=None, pdb_ids=None, overwrite=True, folder='data/raw/'):
         # is the filter from "filter_dfl_via_table" -> if none provided give f = self.table
-        dfl_list_f = list(f['PDB'])
+        # TBD: OVERWRITE
+        if f == None:
+            dfl_list_f = self.dfl_list
+        else:
+            dfl_list_f = list(f['PDB'])
         dfl_list_f_indices = self.get_dfl_indices(dfl_list_f)
         dfl_list_f_indices = [x for x in dfl_list_f_indices if x != None]
            
