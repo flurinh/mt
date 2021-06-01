@@ -81,6 +81,17 @@ class CifProcessor():
         
     # ==============================================================================================================
     
+    def dfl_to_list(self):
+        self.dfl_list = []
+        for i in range(len(self.dfl)):
+            self.dfl_list.append(self.dfl[i]['PDB'].iloc[0].upper())
+    
+    
+    def get_dfl_indices(self, filtered_list):
+        return [self.dfl_list.index(filtered_list[i]) if (filtered_list[i] in self.dfl_list)\
+                else None for i in range(len(filtered_list))]
+    
+    
     def get_pdb_files(self):
         # just a helper function that returns all pdb files in specified path
         (_, _, filenames) = next(os.walk(self.structure_path))
@@ -90,11 +101,12 @@ class CifProcessor():
         pdb_ids = list(set([x[-8:-4] for x in files]))
         return files, pdb_ids
     
-    def get_metatable(self):        
-        self.table = pd.read_pickle(self.path_table)
-        self.table.to_pickle(self.path + 'data_table.pkl')
     
-    def make_metainfo(self):
+    def make_metainfo(self, overwrite=True):
+        del self.mappings
+        del self.numbering
+        self.mappings = pd.DataFrame()
+        self.numbering = pd.DataFrame()
         for i, pdb_id in tqdm(enumerate(self.pdb_ids)):
             if i < self.limit:
                 protein, family = self.get_prot_info(pdb_id)
@@ -113,7 +125,10 @@ class CifProcessor():
                         numb = pd.DataFrame(data=[pdb_id, protein, family, numbering]).T
                         numb.columns = ['PDB', 'identifier', 'family', 'numbering']
                         self.numbering = self.numbering.append(numb, ignore_index=True)
+        if overwrite:
+            self.to_pkl_metainfo()
 
+            
     def make_raws(self, overwrite=False, folder='raw/'):
         self.dfl = []
         for i, pdb_id in tqdm(enumerate(self.pdb_ids)):
@@ -133,6 +148,7 @@ class CifProcessor():
                                                             axis=1)
                         self.dfl.append(structure)
         self.to_pkl(folder=self.raw_folder, overwrite=overwrite)
+        self.dfl_to_list()
                         
     # ==============================================================================================================
         
@@ -173,6 +189,14 @@ class CifProcessor():
             else:
                 full_table = full_table.append(table, ignore_index=True)
         return full_table
+    
+    
+    def save_gprotein_df(self, gprot_df, path='data/'):
+        gprot_df.to_pickle(path+'gprotein_df.pkl')
+    
+    
+    def load_gprotein_df(self, path='data/'):
+        return pd.read_pickle(path+'gprotein_df.pkl')
     
     # ==============================================================================================================
     
@@ -225,6 +249,7 @@ class CifProcessor():
         self.table.to_pickle(self.path + 'data_table.pkl')
         self.mappings.to_pickle(self.path + 'data_mappings.pkl')
     
+    
     def to_pkl(self, mode='', folder='data/processed/', overwrite=False):
         for df in self.dfl:
             if len(df)<=0:
@@ -238,8 +263,10 @@ class CifProcessor():
                     filename = folder + pdb_id + '_r.pkl'
                 elif mode=='g':
                     filename = folder + pdb_id + '_g.pkl'
+                elif mode=='rg':
+                    filename = folder + pdb_id + '_rg.pkl'
                 else:
-                    print("Mode not implemented")
+                    print("Mode {} not implemented!".format(mode))
                 
                 if (not os.path.isfile(filename)) or overwrite:
                     df.to_pickle(filename)
@@ -258,20 +285,14 @@ class CifProcessor():
             
     # ==============================================================================================================
     
-    def read_pkl(self, mode='', folder='data/processed/', limit=None):
-        if limit==None:
-            print("Keeping set limit {}!".format(self.limit))
-        else:
-            print("Setting limit to {}!".format(limit))
-            self.limit = limit
-        files = [f for f in os.listdir(folder) if '.pkl' in f][:self.limit]
+    def read_pkl(self, mode='', folder='data/processed/'):
+        files = [f for f in os.listdir(folder) if '.pkl' in f]
         
         if 'g' in mode:
-            # remove all files with "g-ending" -> refers to already processed data
-            files = [f for f in files if 'g.' not in f]
+            files = [f for f in files if 'g' in f]
             
         if 'r' in mode:
-            files = [f for f in files if '_r' not in f]
+            files = [f for f in files if 'r' in f]
         
         self.dfl = []
         for f in files:
@@ -281,6 +302,7 @@ class CifProcessor():
                 self.dfl_list.append(f[:-(len(f)-4)])
             else:
                 self.dfl_list.append('')
+        self.dfl_to_list()
     
     def read_pkl_metainfo(self):
         self.numbering = pd.read_pickle(self.path + 'data_numbering.pkl')
@@ -294,11 +316,17 @@ class CifProcessor():
         mappings_ = self.mappings[self.mappings['PDB']==pdb]
         pref_chain = self.table[self.table['PDB']==pdb.upper()]['Preferred Chain'].iloc[0]
         map_df_list = []
+        if len(mappings_)==0:
+            print("Did not find {}'s mapping! Have to look it up now.. Please run make_metainfo() before assigning gen. nums!"\
+                  .format(pdb))
+            mappings_ = self.get_mapping(pdb)
         for j in range(len(mappings_)):
             chain = pd.DataFrame.from_dict(mappings_.iloc[j]['mappings'])['chain_id'].iloc[0]
             identifier = mappings_.iloc[j]['name']
+            uniprot = mappings_.iloc[j]['uniprot']
             dict_ = pd.DataFrame.from_dict(mappings_.iloc[j]['mappings'])
             dict_['identifier'] = identifier
+            dict_['uniprot'] = uniprot
             map_df_list.append(pd.DataFrame.from_dict(dict_))
         stacked_maps = pd.concat(map_df_list)
         stacked_maps = stacked_maps[stacked_maps['chain_id']==pref_chain]
@@ -331,10 +359,25 @@ class CifProcessor():
                 return ['', '', 0, 0]
         else:
             return ['', '', 0, 0]
+        
+        
+    def get_uniprot_seq(self, code):
+        print("Looking up uniprot fasta sequence for", code)
+        baseUrl="http://www.uniprot.org/uniprot/"
+        try:
+            currentUrl=baseUrl + code + ".fasta"
+            response = r.post(currentUrl)
+            cData=''.join(response.text)
+            Seq=StringIO(cData)
+            pSeq=list(SeqIO.parse(Seq,'fasta'))
+            pSeq0 = pSeq[0]
+            return str(pSeq0.seq)
+        except:
+            return ''
 
 
     # def _assign_res_nums_g(self, pdb_id, mappings, structure, uniprot_gprot_list, gprot_df, res_table):
-    def _assign_res_nums_r(self, structure):
+    def _assign_res_nums_r(self, structure, ref_uniprot=True):
         pdb_id = structure['PDB'].iloc[0]
         data = structure.reset_index().drop('index', axis=1)
         cols = data.columns
@@ -353,10 +396,10 @@ class CifProcessor():
                 loc['residue_number'][['chain_id', 'start','end','unp_start','unp_end', 'identifier', 'PDB']])\
                     == pandas.core.series.Series:
             pref_mapping = maps_stacked[maps_stacked['PDB']==pdb_id].loc['residue_number']\
-                [['chain_id', 'start','end','unp_start','unp_end', 'identifier', 'PDB']].to_frame().T
+                [['chain_id', 'start','end','unp_start','unp_end', 'identifier', 'PDB', 'uniprot']].to_frame().T
         else:
             pref_mapping = maps_stacked[maps_stacked['PDB']==pdb_id].\
-                loc['residue_number'][['chain_id', 'start','end','unp_start','unp_end', 'identifier', 'PDB']]
+                loc['residue_number'][['chain_id', 'start','end','unp_start','unp_end', 'identifier', 'PDB', 'uniprot']]
         pref_chain = pref_mapping['chain_id'].iloc[0]
         pref_mapping = pref_mapping.sort_values('start')
         uniprot_identifier_ = data[data['PDB']==pdb_id]['identifier'].unique()
@@ -371,20 +414,71 @@ class CifProcessor():
             start_uniprot = row['unp_start']
             end_label_seq_id = row['end']
             end_uniprot = row['unp_end']
+            uniprot_id = row['uniprot']
+            print(uniprot_id)
+            print('pdb:', start_label_seq_id, end_label_seq_id)
+            print('uni:', start_uniprot, end_uniprot)
+            
             if map_identifier == uniprot_identifier:
-                idxs = [x for x in range(natoms+1) \
-                        if ((x <= end_label_seq_id) & (x >= start_label_seq_id))]
-                vals = [x + start_uniprot - start_label_seq_id for x in range(natoms+1) \
-                        if ((x <= end_label_seq_id) & (x >= start_label_seq_id))]
-                for k, idx in enumerate(idxs):
-                    line = data[(data['PDB'] == pdb_id) &
-                                (data['label_seq_id'] == idx) &
-                                (data['label_atom_id'] == 'CA')]
-                    lines = len(line)
-                    if len(line) > 1:
-                        line = line[line['auth_asym_id'] == pref_chain]
-                    if len(line) > 0:
-                        data.at[line.index[0], 'label_2_uni'] = int(vals[k])
+                if ((end_label_seq_id-start_label_seq_id) != (end_uniprot-start_uniprot)) and ref_uniprot:
+                    print("Using uniprot as a reference, due to missmatch in SIFTS!")
+                    # ---> I need a uniprot number corresponding to each of the label_seq_ids!!!!
+                    uni_seq = self.get_uniprot_seq(uniprot_identifier)
+                    # TODO: 1) make a dict for each pdb-residue- and -label_seq_id-pair
+                    roi = data[(data['label_seq_id'] >= start_label_seq_id) &
+                                    (data['label_seq_id'] < end_label_seq_id) &
+                                    (data['label_atom_id'] == 'CA') &
+                                    (data['auth_asym_id'] == pref_chain)][['label_seq_id', 'label_comp_sid']]
+                    # pdb_dict = roi.set_index('label_seq_id').T.to_dict('list')
+                    pdb_res_list = ''.join(list(roi['label_comp_sid']))
+                    #       2) make a dict for each uniprot-residue- and -uniprot_seq_id-pair
+                    uni_seq_list = list(uni_seq)
+                    idxs = [x for x in range(len(uni_seq_list))]
+                    uni_dict = dict(zip(idxs, uni_seq_list))
+                    # DO A SEQ ALIGNMENT
+                    a, _, b, _ = self._get_pairwise_indices(pdb_res_list, uni_seq)
+                    a = a[start_label_seq_id:]
+                    b = b[start_label_seq_id:]
+                    al = list(a)
+                    bl = list(b)
+                    label_dict = {}
+                    for ai in al:
+                        for bj in bl:
+                            if ai != '-':
+                                label_dict[] = 0
+                            else:
+                                label_dict[] = -1
+                    # 1: both 
+                    # 2: only a
+                    # 3: only b
+                    # 4: neither exists
+                    
+                    ab_dict = dict(zip(a_, b_))
+                    print(a, b)
+                    print(_, _)
+                    # I need a dict of pdb_indices -> uniprot_indices
+                    lines = data[(data['label_seq_id'] <= start_label_seq_id) &
+                                 (data['label_seq_id'] >= start_label_seq_id) &
+                                 (data['label_atom_id'] == 'CA')]
+                    for k in range(len(lines)):
+                        line = lines.iloc[k]
+                        idx = line.index[0]
+                        pdb_seq_label = line['label_seq_id']
+                        data.at[idx, 'label_2_uni'] = ab_dict[pdb_seq_label]
+                else:
+                    idxs = [x for x in range(natoms+1) \
+                            if ((x <= end_label_seq_id) & (x >= start_label_seq_id))]
+                    vals = [x + start_uniprot - start_label_seq_id for x in range(natoms+1) \
+                            if ((x <= end_label_seq_id) & (x >= start_label_seq_id))]
+                    for k, idx in enumerate(idxs):
+                        line = data[(data['PDB'] == pdb_id) &
+                                    (data['label_seq_id'] == idx) &
+                                    (data['label_atom_id'] == 'CA')]
+                        lines = len(line)
+                        if len(line) > 1:
+                            line = line[line['auth_asym_id'] == pref_chain]
+                        if len(line) > 0:
+                            data.at[line.index[0], 'label_2_uni'] = int(vals[k])
             else:
                 # Didnt find correct uniprotmap (not a gpcr) ==> map_identifier
                 pass
@@ -393,16 +487,19 @@ class CifProcessor():
         if type(data) == pandas.core.series.Series:
             data = data.to_frame().T
         
+        # THIS APPLY CALL IS VERY SLOW!!!
         data[['gen_pos', 'uniprot_comp_sid', 'gen_pos1', 'gen_pos2']] = data.\
             apply(lambda x: self.get_generic_number(zipped_pos_dict, x.label_2_uni, x.label_comp_sid) if x.PDB==pdb_id\
                   else [x.gen_pos, x.uniprot_comp_sid, x.gen_pos1, x.gen_pos2], axis=1, result_type='expand')
         return data
     
-    def assign_generic_numbers_r(self, f=None, pdb_ids=None, overwrite=True, folder='data/processed/'):
-        if f!=None:
-            dfl_pdbs=list(set(list(f['PDB'])))
+    def assign_generic_numbers_r(self, f, pdb_ids=[], overwrite=True, folder='data/processed/'):
+        if isinstance(pdb_ids, str):
+            pdb_ids = [pdb_ids]
+        if len(pdb_ids) > 0:
+            dfl_pdbs = pdb_ids
         else:
-            dfl_pdbs=list(set(list(self.dfl_list)))
+            dfl_pdbs=list(set(list(f['PDB'])))
         dfl_indices=self.get_dfl_indices(dfl_pdbs)
         for i in trange(len(dfl_indices)):
             if self.allow_exception:
@@ -423,28 +520,23 @@ class CifProcessor():
                 self.dfl[dfl_indices[i]] = s
         
         self.to_pkl(mode='r', folder=folder, overwrite=overwrite)
+        self.dfl_to_list()
     
-    # ==============================================================================================================    
-        
-    def load_gen_res_nums_gprot(self, path='data/alignments/residue_table.xlsx'):
-        res_table = pd.read_excel(path, engine='openpyxl')
-        keep_cols = ['CGN',
-                 'G(s) subunit alpha isoforms short Human', 
-                 'G(t) subunit alpha-1 Human', 
-                 'G(i) subunit alpha-1 Human', 'G(i) subunit alpha-2 Human', 
-                 'G(o) subunit alpha Human',
-                 'G(q) subunit alpha Human',
-                 'subunit alpha-11 Human']
-        drop_cols = [x for x in res_table.columns if x not in keep_cols]
-        res_table=res_table.drop(drop_cols, axis=1)
-        res_table.columns = ['CGN', 'Gs', 'Gta1', 'Gia1', 'Gia2', 'Go', 'Gq', 'G11']
-        # These are the rows corresponding to "beginnings/ends" of new G protein sections (nan rows)
-        res_table = res_table.drop(res_table[res_table.iloc[:, 1:].isnull().all(1)].index).reset_index(drop=True)
-        domain_list = res_table[res_table.iloc[:, 1:].isnull().all(1)]['CGN'].to_list()
-        return res_table, domain_list
+    # ==============================================================================================================        
+    
+    def apply_filter(self, f):
+        self.table = f
+        pdb_ids = list(self.table['PDB'])
+        dfl = []
+        for df in self.dfl:
+            if df['PDB'].iloc[0] in pdb_ids:
+                dfl.append(df)
+        self.dfl = dfl
+        self.dfl_to_list()
 
     
     def filter_dfl_via_table(self,
+                             pdb_ids=[],
                              Species=None,
                              State=None,
                              Cl=None,
@@ -454,6 +546,10 @@ class CifProcessor():
                              Function=None,
                              gprotein=False):
         data = self.table
+        if isinstance(pdb_ids, str):
+            pdb_ids = [pdb_ids]
+        if len(pdb_ids) > 0:
+            data = data[data['PDB'].isin(pdb_ids)]
         if Species != None:
             data = data[data['Species']==Species]
         if State != None:
@@ -471,7 +567,8 @@ class CifProcessor():
         if gprotein:
             data = self._filter_table_via_gprotein(data)
         return data
-    
+        
+        
     def _filter_table_via_gprotein(self, table):
         allowed_Fam_ = ['Gi/o', 'Gs', 'Gq/11']
         allowed_Fam = '|'.join(allowed_Fam_)
@@ -480,6 +577,27 @@ class CifProcessor():
         table = table[table['Family'].str.contains(allowed_Fam) &
                       table['Subtype'].str.contains(allowed_Sub)].reset_index(drop=True)
         return table
+    
+    
+    # ==============================================================================================================   
+    
+    
+    def load_gen_res_nums_gprot(self, path='data/alignments/residue_table.xlsx'):
+        res_table = pd.read_excel(path, engine='openpyxl')
+        keep_cols = ['CGN',
+                 'G(s) subunit alpha isoforms short Human', 
+                 'G(t) subunit alpha-1 Human', 
+                 'G(i) subunit alpha-1 Human', 'G(i) subunit alpha-2 Human', 
+                 'G(o) subunit alpha Human',
+                 'G(q) subunit alpha Human',
+                 'subunit alpha-11 Human']
+        drop_cols = [x for x in res_table.columns if x not in keep_cols]
+        res_table=res_table.drop(drop_cols, axis=1)
+        res_table.columns = ['CGN', 'Gs', 'Gta1', 'Gia1', 'Gia2', 'Go', 'Gq', 'G11']
+        # These are the rows corresponding to "beginnings/ends" of new G protein sections (nan rows)
+        res_table = res_table.drop(res_table[res_table.iloc[:, 1:].isnull().all(1)].index).reset_index(drop=True)
+        domain_list = res_table[res_table.iloc[:, 1:].isnull().all(1)]['CGN'].to_list()
+        return res_table, domain_list
     
     
     def _get_res_num_df(self, res_table, subtype):
@@ -516,6 +634,7 @@ class CifProcessor():
                 gprot_uniprot_seq_dict[code] = ''
         return gprot_uniprot_seq_dict
     
+    
     def get_gproteins_in_complex_df(self, res_table):
         uniprot_gprot_list = functools.reduce(operator.iconcat, list(self.uniprot_dict.values()), [])
         def _get_uniprot_types(uniprot, uniprot_dict, g_dict):
@@ -547,10 +666,6 @@ class CifProcessor():
                     print(pdb_map['uniprot'])
                     res_num_df = self._get_res_num_df(res_table, subtype)
     
-    
-    def get_dfl_indices(self, filtered_list):
-        return [self.dfl_list.index(filtered_list[i]) if (filtered_list[i] in self.dfl_list)\
-                else None for i in range(len(filtered_list))]
     
     def get_stacked_maps_g(self, pdb_id, mappings, uniprot_gprot_list):
         # add gene to mapping
@@ -635,6 +750,7 @@ class CifProcessor():
         try:
             maps_stacked = self.get_stacked_maps_g(pdb_id, mappings, uniprot_gprot_list)
         except:
+            print("No mapping found!")
             return structure
         if 'residue_number' in maps_stacked.index:
             pass
@@ -649,9 +765,10 @@ class CifProcessor():
             mapping = selection.loc['residue_number']
 
         mapping = mapping.sort_values('start')
-        label_seq_ids = list(structure[structure['PDB']==pdb_id]['label_seq_id'])
+        label_seq_ids = list(structure['label_seq_id'])
         if len(label_seq_ids) == 0:
-            print("Did not find label_seq_ids")
+            print(mapping)
+            print("Did not find label_seq_ids:", pdb_id)
             return structure
         nres = max(label_seq_ids)
         structure['gprot_pos'] = ''
@@ -675,47 +792,98 @@ class CifProcessor():
                 # iterate from start_label_seq_id to end_label_seq_id
 
                 seq_len = end_label_seq_id - start_label_seq_id
-
-                for k in range(seq_len):
+                structure['gprot_pos'] = ''
+                structure['uniprot_comp_id'] = ''
+                structure['fam_comp_id'] = ''
+                
+                for k in range(seq_len + 1):
                     idx_seq = k + start_label_seq_id
                     idx_uni = k + start_uniprot - 1
-                    line = structure[(structure['PDB'] == pdb_id) &
-                                     (structure['label_seq_id'] == idx_seq) &
+                    line = structure[(structure['label_seq_id'] == idx_seq) &
                                      (structure['label_atom_id'] == 'CA') &
                                      (structure['auth_asym_id'] == pref_chain)]
 
                     if len(line) > 0:
                         structure.at[line.index[0], 'label_2_uni'] = idx_uni + 1
-                        if line['label_seq_id'].iloc[0] in list(cgn_df.index):
+                        if line['label_2_uni'].iloc[0] in list(cgn_df.index):
                             structure.at[line.index[0], 'gprot_pos'] = cgn_df.iloc[idx_uni]['cgn']
                             structure.at[line.index[0], 'uniprot_comp_id'] = cgn_df.iloc[idx_uni]['seq_res']
                             structure.at[line.index[0], 'fam_comp_id'] = cgn_df.iloc[idx_uni]['fam_seq_res']
-                        else:
-                            structure.at[line.index[0], 'gprot_pos'] = ''
             else:
                 return structure
             
-            # TODO: IF FILL_H5: FILL FROM END OF CHAIN? WITH RES NUMS BACK TO H5 BEGINNING
-            
+            if fill_H5:
+                structure = self._assign_generic_numbers_h5(structure=structure)
+                
         return structure
     
-    
-    def assign_generic_numbers_g(self, f=None, pdb_ids=None, overwrite=True, folder='data/raw/'):
-        # is the filter from "filter_dfl_via_table" -> if none provided give f = self.table
-        # TBD: OVERWRITE
-        if f == None:
-            dfl_list_f = self.dfl_list
+    def _assign_generic_numbers_h5(self, structure, max_h5_error=20, h5_tail_discrep=5):
+        # 1. check if any part of the complex is labelled as a gprot
+        # 2. if yes, find end of that section and if it is not labelled until H5.25 label them backwards!
+        if len(list(structure['gprot_pos'].unique())) > 1:
+            h5_region = structure[structure['gprot_pos'].str.contains('H5')]
+            if len(h5_region) > 0:
+                h5_region_nums = [int(x.split('H5.')[-1]) for x in list(h5_region['gprot_pos'].unique())]
+                if max(h5_region_nums) < 26:
+                    h5_chain = h5_region['label_asym_id'].iloc[0]
+                    h5_chain_region = structure[structure['label_asym_id'] == h5_chain]
+                    # check if helix 5 region is about thesize of the final part of the chain containing H5 residues
+                    end_h5 = max(h5_chain_region['label_seq_id'])
+                    end_labelled_h5 = h5_region.iloc[len(h5_region)-1]['label_seq_id']
+                    unlabelled_h5 = end_h5 - end_labelled_h5
+                    if (unlabelled_h5 < max_h5_error) & (unlabelled_h5 > 0):
+                        final_h5_label = h5_region_nums[-1]
+                        h5_tail_discrepancy = abs((unlabelled_h5 + final_h5_label) - 26)
+                        # label from the end backwards
+                        print(structure['PDB'].iloc[0], "unlabelled:", unlabelled_h5)
+                        for i in range(unlabelled_h5):
+                            label_seq_id_ = end_h5 + i
+                            line = structure[(structure['label_seq_id']==label_seq_id_) &
+                                             (structure['label_atom_id'] == 'CA') &
+                                             (structure['label_asym_id']==h5_chain)]
+                            print("label_seq_id", label_seq_id_)
+                            if len(line) > 0:
+                                print("assigning {} of gprotein gen. number: G.H5.{}".format(label_seq_id_, 
+                                                                                             26-(unlabelled_h5-i-1)))
+                                structure.at[line.index[0], 'gprot_pos'] = 'G.H5.'+str(26-(unlabelled_h5-i-1))
+            return structure
         else:
-            dfl_list_f = list(f['PDB'])
+            return structure
+    
+    
+    def assign_generic_numbers_g(self, f, pdb_ids=[], overwrite=True, folder='data/processed/', fill_H5=False):
+        # is the filter from "filter_dfl_via_table" -> if none provided give f = self.table
+        dfl_list_f=list(set(list(f['PDB'])))
+        if len(pdb_ids) > 0:
+            dfl_list_f = pdb_ids
+        
         dfl_list_f_indices = self.get_dfl_indices(dfl_list_f)
         dfl_list_f_indices = [x for x in dfl_list_f_indices if x != None]
            
         res_table = self.load_gen_res_nums_gprot()[0]
-        gprot_df = self.get_gproteins_in_complex_df(res_table)
+        if os.path.isfile('data/'+'gprotein_df.pkl'):
+            gprot_df = self.load_gprotein_df()
+        else:
+            gprot_df = self.get_gproteins_in_complex_df(res_table)
+            self.save_gprotein_df(gprot_df)
         uniprot_gprot_list = functools.reduce(operator.iconcat, list(self.uniprot_dict.values()), [])
         
         for i in trange(len(dfl_list_f_indices)):
-            try:
+            if self.allow_exception:
+                try:
+                    pdb_id = self.dfl_list[dfl_list_f_indices[i]]
+                    structure = self.dfl[dfl_list_f_indices[i]]
+                    s = self._assign_res_nums_g(pdb_id,
+                                                self.mappings[self.mappings['PDB']==pdb_id],
+                                                structure, 
+                                                uniprot_gprot_list, 
+                                                gprot_df,
+                                                res_table,
+                                                fill_H5)
+                    self.dfl[i] = s
+                except:
+                    print("Error parsing", pdb_id)
+            else:
                 pdb_id = self.dfl_list[dfl_list_f_indices[i]]
                 structure = self.dfl[dfl_list_f_indices[i]]
                 s = self._assign_res_nums_g(pdb_id,
@@ -723,8 +891,10 @@ class CifProcessor():
                                             structure, 
                                             uniprot_gprot_list, 
                                             gprot_df,
-                                            res_table)
+                                            res_table,
+                                            fill_H5)
                 self.dfl[i] = s
-            except:
-                print("Error parsing", pdb_id)
+                
+        self.to_pkl(mode='rg', folder=folder, overwrite=overwrite)
+        self.dfl_to_list()
 
