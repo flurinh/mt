@@ -375,6 +375,33 @@ class CifProcessor():
         except:
             return ''
 
+        
+    def _get_res_nums(self, roi_idxs, a, b):
+        al = list(a)
+        bl = list(b)
+        ai_ = 0
+        bj_ = roi_idxs[0]
+        ab = []
+        abij = []
+        for _ in range(len(al)):
+            ai = al[_]
+            bj = bl[_]
+            if ai != '-':
+                if bj != '-':
+                    # ai: '?', bj: '?'
+                    abij.append(roi_idxs[ai_])
+                    ab.append(bj_)
+                    ai_+=1
+                    bj_+=1
+                else:
+                    # ai: '?', bj: '-'
+                    abij.append(roi_idxs[ai_])
+                    ab.append(0)
+                    ai_+=1
+            else:
+                # ai: '-', bj: '?'
+                bj_+=1
+        return abij, ab
 
     # def _assign_res_nums_g(self, pdb_id, mappings, structure, uniprot_gprot_list, gprot_df, res_table):
     def _assign_res_nums_r(self, structure, ref_uniprot=True):
@@ -411,13 +438,10 @@ class CifProcessor():
             map_identifier = row['identifier']
             map_pdb = row['PDB']
             start_label_seq_id = row['start']
-            start_uniprot = row['unp_start']
             end_label_seq_id = row['end']
+            start_uniprot = row['unp_start']
             end_uniprot = row['unp_end']
             uniprot_id = row['uniprot']
-            print(uniprot_id)
-            print('pdb:', start_label_seq_id, end_label_seq_id)
-            print('uni:', start_uniprot, end_uniprot)
             
             if map_identifier == uniprot_identifier:
                 if ((end_label_seq_id-start_label_seq_id) != (end_uniprot-start_uniprot)) and ref_uniprot:
@@ -426,45 +450,33 @@ class CifProcessor():
                     uni_seq = self.get_uniprot_seq(uniprot_identifier)
                     # TODO: 1) make a dict for each pdb-residue- and -label_seq_id-pair
                     roi = data[(data['label_seq_id'] >= start_label_seq_id) &
-                                    (data['label_seq_id'] < end_label_seq_id) &
+                                    (data['label_seq_id'] <= end_label_seq_id) &
                                     (data['label_atom_id'] == 'CA') &
                                     (data['auth_asym_id'] == pref_chain)][['label_seq_id', 'label_comp_sid']]
-                    # pdb_dict = roi.set_index('label_seq_id').T.to_dict('list')
+                    roi_idxs = list(roi['label_seq_id'])
                     pdb_res_list = ''.join(list(roi['label_comp_sid']))
                     #       2) make a dict for each uniprot-residue- and -uniprot_seq_id-pair
-                    uni_seq_list = list(uni_seq)
-                    idxs = [x for x in range(len(uni_seq_list))]
+                    uni_seq_list = list(uni_seq)[start_uniprot:end_uniprot]
+                    idxs = [x+1 for x in range(len(uni_seq_list))]
                     uni_dict = dict(zip(idxs, uni_seq_list))
                     # DO A SEQ ALIGNMENT
                     a, _, b, _ = self._get_pairwise_indices(pdb_res_list, uni_seq)
-                    a = a[start_label_seq_id:]
-                    b = b[start_label_seq_id:]
-                    al = list(a)
-                    bl = list(b)
-                    label_dict = {}
-                    for ai in al:
-                        for bj in bl:
-                            if ai != '-':
-                                label_dict[] = 0
-                            else:
-                                label_dict[] = -1
-                    # 1: both 
-                    # 2: only a
-                    # 3: only b
-                    # 4: neither exists
-                    
-                    ab_dict = dict(zip(a_, b_))
-                    print(a, b)
-                    print(_, _)
+                    abij, ab = self._get_res_nums(roi_idxs, a, b)
+                    label_dict = dict(zip(abij, ab))
                     # I need a dict of pdb_indices -> uniprot_indices
-                    lines = data[(data['label_seq_id'] <= start_label_seq_id) &
+                    lines = data[(data['label_seq_id'] <= end_label_seq_id) &
                                  (data['label_seq_id'] >= start_label_seq_id) &
-                                 (data['label_atom_id'] == 'CA')]
+                                 (data['label_atom_id'] == 'CA') &
+                                 (data['auth_asym_id'] == pref_chain)]
                     for k in range(len(lines)):
                         line = lines.iloc[k]
-                        idx = line.index[0]
+                        idx = list(lines.index)[k]                        
                         pdb_seq_label = line['label_seq_id']
-                        data.at[idx, 'label_2_uni'] = ab_dict[pdb_seq_label]
+                        keys = [int(x) for x in list(label_dict.keys())]
+                        if int(pdb_seq_label) in keys:
+                            data.at[idx, 'label_2_uni'] = label_dict[int(pdb_seq_label)]
+                        else:
+                            data.at[idx, 'label_2_uni'] = 0
                 else:
                     idxs = [x for x in range(natoms+1) \
                             if ((x <= end_label_seq_id) & (x >= start_label_seq_id))]
@@ -473,15 +485,15 @@ class CifProcessor():
                     for k, idx in enumerate(idxs):
                         line = data[(data['PDB'] == pdb_id) &
                                     (data['label_seq_id'] == idx) &
-                                    (data['label_atom_id'] == 'CA')]
+                                    (data['label_atom_id'] == 'CA') &
+                                    (data['auth_asym_id'] == pref_chain)]
                         lines = len(line)
-                        if len(line) > 1:
-                            line = line[line['auth_asym_id'] == pref_chain]
                         if len(line) > 0:
                             data.at[line.index[0], 'label_2_uni'] = int(vals[k])
             else:
                 # Didnt find correct uniprotmap (not a gpcr) ==> map_identifier
                 pass
+        
         # Generate generic numbers
         zipped_pos_dict = self.get_generic_nums(pdb_id)
         if type(data) == pandas.core.series.Series:
@@ -697,8 +709,8 @@ class CifProcessor():
         return df
 
 
-    def _get_pairwise_indices(self, a, b):
-        alignment = pairwise2.align.globalms(a, b, 3, -1, -3, -1)[0]
+    def _get_pairwise_indices(self, a, b, open_gap_pen=-3, ext_gap_pen=-1):
+        alignment = pairwise2.align.globalms(a, b, 3, -1, open_gap_pen, ext_gap_pen)[0]
         indices_a = []
         indices_b = []
         ia = 0
@@ -746,24 +758,175 @@ class CifProcessor():
         return self._make_cgn_df(a, b, res_num_df)
 
     
+    def _assign_res_nums_mini_g(self, pdb_id, structure, uniprot_gprot_list, gprot_df, res_table):
+        uniprot_gprot_list = [x for x in uniprot_gprot_list if x != 'K7EL62']
+        # 1) split complex into chains
+        chains = list(structure['auth_asym_id'].unique())
+        best = 10
+        for c in chains:
+            for gprot in uniprot_gprot_list:
+                r_flag = len(structure[(structure['auth_asym_id']==c) &
+                                       (structure['gen_pos'].str.contains('x'))]) > 1
+                # 2) allign each part to each gprot-seq
+                chain_seq = structure[(structure['auth_asym_id']==c) &
+                                      (structure['label_atom_id']=='CA')]['label_comp_sid'].to_list()
+                chain_seq = ''.join(chain_seq)
+                gprot_seq = gprot_df[gprot_df['Uniprot']==gprot]['Sequence'].iloc[0]
+                a, _, b, _ = self._get_pairwise_indices(chain_seq, gprot_seq, open_gap_pen=-10, ext_gap_pen=-.05)
+                # perfect would be: a gprotein fits 100% ===> len(a) - len(gprot_seq) = len(chain) - len(gprot_seq)
+                # 100% gprot identity: len(a) = len(chain)
+                # each residue of gprot that doesnt match the chain then leads to more error
+                score_gprot = (len(a) - len(chain_seq)) / len(a)
+                score_chain = (len(a) - len(gprot_seq)) / len(a)
+                # print("Chain {} <> Gprot {}\nG-Score (Gprot seq identity): {}\nR-Score (Receptor seq identity): {}"\
+                #       .format(c, gprot, score_gprot, score_chain))
+                mul_score = max(score_gprot, 0.01) * max(score_chain, 0.01)  # This score is pretty cool!
+                if mul_score < best:
+                    best_match = (c, gprot)
+                    best_align = (a, b)
+                    best = mul_score
+                # Problem:  high sequence identities between gproteins!
+                # Solution: 
+                # 3.1) select gprot that aligns BEST to ANY chain  (DONE)
+                # 3.2) check if for regions I could NOT align with said gprotein, there is a better mapping  (TBD)
+                #      ===> this would require a local score to be calculated telling me if part of the gprotein fits well (e.g. the gaps)
+        # 4) I need to create a maps_stacked df and continue as if nothing happened  ==> bring it into a format of "maps_stacked"
+        #    I need starting and end-points of the aligned sequences
+        #    map1 = {start_uniprot: 1, end_uniprot:  13, start_pdb: 23, end_pdb}
+        #    list_of_maps = [map1, map2, map3]
+        list_of_maps = self._get_maps_from_alignment(best_align[0], best_align[1], structure, best_match[0])
+        return self._create_maps_stacked_from_align(list_of_maps, chain_id=best_match[0], pdb_id=pdb_id, uniprot=best_match[1])
+    
+    
+    def _get_roi_from_padded_seq(self, l, min_size):
+        list_of_conseq_num_list = []
+        num_list = []
+        for i, li in enumerate(list(l)):
+            if li != '-':
+                num_list.append(i)
+            else:
+                if len(num_list) >= min_size:
+                    list_of_conseq_num_list.append((min(num_list), max(num_list)))
+                    num_list = []
+        if len(num_list) >= min_size:
+            list_of_conseq_num_list.append((min(num_list), max(num_list)))
+        return list_of_conseq_num_list
+    
+        
+    def _get_maps_from_alignment(self, a, b, structure, chain_id, min_size=8):
+        list_of_maps = []
+        # 1 get pdb_chain_structure
+        chain = structure[(structure['auth_asym_id']==chain_id) &
+                          (structure['label_atom_id']=='CA')]
+        # i need to look at chain>label_seq_id and chain>label_comp_sid
+        # get starting and end-points of all regions of size >= min_size (in the pdb chain/structure)
+        label_2_uni = 0
+        indices_dict = {}
+        pdb_labels = list(chain['label_seq_id'])
+        pdb_seq = list(chain['label_comp_sid'])
+        ai_ = 0
+        bi_ = 0
+        # get regions of interest from alignment (all regions above a minimum length)
+        locnl_a = self._get_roi_from_padded_seq(a, min_size)
+        locnl_b = self._get_roi_from_padded_seq(b, min_size)
+        # find overlap of rois
+        lroi = []
+        for la in locnl_a:
+            for lb in locnl_b:
+                range_a = range(la[0], la[1])
+                range_b = range(lb[0], lb[1])
+                overlap = list(set(range_a).intersection(range_b))
+                if len(overlap)>0:
+                    start = min(overlap)
+                    end = max(overlap)
+                    lroi.append((start, end))
+        df_roi = pd.DataFrame(dict(lroi).items(), columns =  ['start', 'end'])
+        
+        ls_a = list(zip(range(0, len(list(a))), list(a)))             
+        ls_a = [x for x in ls_a if x[1]!='-']
+        
+        df_a = pd.DataFrame(dict(ls_a).items(), columns = ['align_idx', 'pdb_res'])
+        df_a['pdb_seq_id'] = pdb_labels
+        
+        func_a = lambda x: (df_a.align_idx == x.start) | (df_a.align_idx == x.end)
+        df_a = df_a[df_roi.apply(func_a, axis=1).any()]
+        
+        
+        ls_b = list(zip(range(0, len(list(b))), list(b)))
+        df_b = pd.DataFrame(dict(ls_b).items(), columns = ['align_idx', 'uniprot_res'])
+        
+        df_b['uniprot_seq_id'] = list(range(1, len(df_b)+1))
+        func_b = lambda x: (df_b.align_idx == x.start) | (df_b.align_idx == x.end)
+        df_b = df_b[df_roi.apply(func_b, axis=1).any()]
+        
+        map_df = pd.merge(df_a, df_b, on='align_idx').reset_index(drop=True)
+        
+        assert len(map_df)%2 == 0, print("Did not find equal number of start and end points in region of interests!")
+        
+        list_of_maps = []
+        for m in range(int(len(map_df)/2)):
+            start = map_df.iloc[m*2]
+            end = map_df.iloc[m*2+1]
+            start_uniprot = start['uniprot_seq_id']
+            end_uniprot = end['uniprot_seq_id']
+            start_pdb = start['pdb_seq_id']
+            end_pdb = end['pdb_seq_id']
+            list_of_maps.append({'start_uniprot': start_uniprot, 
+                                 'end_uniprot': end_uniprot, 
+                                 'start_pdb': start_pdb, 
+                                 'end_pdb': end_pdb})
+            
+        return list_of_maps  # map:= {start_uniprot: 1, end_uniprot:  13, start_pdb: 23, end_pdb: 35}
+    
+    
+    def _create_maps_stacked_from_align(self, list_of_maps, chain_id, pdb_id, uniprot):
+        cols = ['entity_id', 'chain_id', 'start', 'end', 'unp_start', 'unp_end', 'struct_asym_id', 'PDB', 'uniprot']
+        rows = ['author_residue_number', 'author_insertion_code', 'residue_number']        
+        map_df_list = []
+        # i guess struct_asym_id == chain_id for now...
+        for m, map_ in enumerate(list_of_maps):
+            df = pd.DataFrame(columns = cols)
+            df['index'] = rows
+            df.set_index('index', inplace=True)
+            df['entity_id'] = [1 for _ in range(3)]
+            df['chain_id'] = [chain_id for _ in range(3)]
+            df['struct_asym_id'] = [chain_id for _ in range(3)]   # I CONFUSE THESE TWO ALL THE TIME..
+            df['PDB'] = [pdb_id for _ in range(3)]
+            df['uniprot'] = [uniprot for _ in range(3)]
+            df['start'] = [map_['start_pdb'] for _ in range(3)]
+            df['end'] = [map_['end_pdb'] for _ in range(3)]
+            df['unp_start'] = [map_['start_uniprot'] for _ in range(3)]
+            df['unp_end'] = [map_['end_uniprot'] for _ in range(3)]
+            map_df_list.append(df)
+        stacked_maps = pd.concat(map_df_list)
+        print(stacked_maps)
+        return stacked_maps
+        
+    
     def _assign_res_nums_g(self, pdb_id, mappings, structure, uniprot_gprot_list, gprot_df, res_table, fill_H5=False):
+        print("assinging res_nums to gprot of", pdb_id)
+        
         try:
             maps_stacked = self.get_stacked_maps_g(pdb_id, mappings, uniprot_gprot_list)
+            print("Mapping found!")
         except:
-            print("No mapping found!")
-            return structure
+            print("No mapping (no uniprot-seq) information found! ====> PRESUMABLY A MINI G!")
+            if self.allow_exception:
+                return structure
+            else:
+                maps_stacked = self._assign_res_nums_mini_g(pdb_id, structure, uniprot_gprot_list, gprot_df, res_table)
+        
         if 'residue_number' in maps_stacked.index:
             pass
         else:
+            print("Empty mapping found!")
             return structure
 
         selection = maps_stacked[maps_stacked['PDB']==pdb_id]
-
         if type(selection.loc['residue_number']) == pandas.core.series.Series:
             mapping = selection.loc['residue_number'].to_frame().T
         else:
             mapping = selection.loc['residue_number']
-
         mapping = mapping.sort_values('start')
         label_seq_ids = list(structure['label_seq_id'])
         if len(label_seq_ids) == 0:
@@ -772,37 +935,29 @@ class CifProcessor():
             return structure
         nres = max(label_seq_ids)
         structure['gprot_pos'] = ''
-
         for j in range(len(mapping)):
             row = mapping.iloc[j].to_dict()
-
             pref_chain = row['chain_id']
             uniprot = row['uniprot']
             gprot_idx = list(gprot_df['Uniprot']).index(uniprot)
-
             if gprot_idx >= 0:
                 cgn_df = self._get_cgn_df(gprot_df, gprot_idx, res_table)
-
                 start_label_seq_id = row['start']
                 start_uniprot = row['unp_start']
                 end_label_seq_id = row['end']
                 end_uniprot = row['unp_end']
-
                 # the start -> end should be a shift (if not we have to do an alignment eg. 6FUF)
                 # iterate from start_label_seq_id to end_label_seq_id
-
                 seq_len = end_label_seq_id - start_label_seq_id
                 structure['gprot_pos'] = ''
                 structure['uniprot_comp_id'] = ''
                 structure['fam_comp_id'] = ''
-                
                 for k in range(seq_len + 1):
                     idx_seq = k + start_label_seq_id
                     idx_uni = k + start_uniprot - 1
                     line = structure[(structure['label_seq_id'] == idx_seq) &
                                      (structure['label_atom_id'] == 'CA') &
                                      (structure['auth_asym_id'] == pref_chain)]
-
                     if len(line) > 0:
                         structure.at[line.index[0], 'label_2_uni'] = idx_uni + 1
                         if line['label_2_uni'].iloc[0] in list(cgn_df.index):
@@ -811,11 +966,10 @@ class CifProcessor():
                             structure.at[line.index[0], 'fam_comp_id'] = cgn_df.iloc[idx_uni]['fam_seq_res']
             else:
                 return structure
-            
             if fill_H5:
                 structure = self._assign_generic_numbers_h5(structure=structure)
-                
         return structure
+    
     
     def _assign_generic_numbers_h5(self, structure, max_h5_error=20, h5_tail_discrep=5):
         # 1. check if any part of the complex is labelled as a gprot
@@ -853,12 +1007,15 @@ class CifProcessor():
     
     def assign_generic_numbers_g(self, f, pdb_ids=[], overwrite=True, folder='data/processed/', fill_H5=False):
         # is the filter from "filter_dfl_via_table" -> if none provided give f = self.table
+        if not isinstance(pdb_ids, list):
+            pdb_ids = [pdb_ids]
         dfl_list_f=list(set(list(f['PDB'])))
         if len(pdb_ids) > 0:
             dfl_list_f = pdb_ids
         
         dfl_list_f_indices = self.get_dfl_indices(dfl_list_f)
         dfl_list_f_indices = [x for x in dfl_list_f_indices if x != None]
+        
            
         res_table = self.load_gen_res_nums_gprot()[0]
         if os.path.isfile('data/'+'gprotein_df.pkl'):

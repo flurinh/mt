@@ -1,4 +1,8 @@
-
+import pandas as pd
+import numpy as np
+from scipy.spatial.distance import cdist, pdist
+import seaborn as sns
+from matplotlib import rcParams
 
 
 def get_closest_atoms(res1: pd.DataFrame, res2: pd.DataFrame):
@@ -11,7 +15,6 @@ def get_closest_atoms(res1: pd.DataFrame, res2: pd.DataFrame):
     idx2 = idx[2]
     print(dists[idx[0], idx[1]])
     return res1.iloc[idx1], res2.iloc[idx2]
-
 
 def dists_to_frame(pdb_id, dists, col_x, col_y):
     df = pd.DataFrame(dists, columns = col_x)
