@@ -129,7 +129,7 @@ class CifProcessor():
             self.to_pkl_metainfo()
 
             
-    def make_raws(self, overwrite=False, folder='raw/'):
+    def make_raws(self, overwrite=False):
         self.dfl = []
         for i, pdb_id in tqdm(enumerate(self.pdb_ids)):
             if i < self.limit:
@@ -251,19 +251,26 @@ class CifProcessor():
     
     
     def to_pkl(self, mode='', folder='data/processed/', overwrite=False):
-        for df in self.dfl:
-            if len(df)<=0:
-                print('No data to write!')
+        for d, df in enumerate(self.dfl):
+            if len(df) <=0:
+                print('No data to write!', self.dfl_list[d])
             else:
                 pdb_id = df['PDB'].unique()[0]
-                
                 if mode=='':
+                    if d == 0:
+                        print("Writing files without generic numbers...")
                     filename = folder + pdb_id + '.pkl'
                 elif mode=='r':
+                    if d == 0:
+                        print("Writing files with generic numbers on receptors.")
                     filename = folder + pdb_id + '_r.pkl'
                 elif mode=='g':
+                    if d == 0:
+                        print("Writing files with generic numbers on gproteins.")
                     filename = folder + pdb_id + '_g.pkl'
                 elif mode=='rg':
+                    if d == 0:
+                        print("Writing files with generic numbers on receptors and gproteins.")
                     filename = folder + pdb_id + '_rg.pkl'
                 else:
                     print("Mode {} not implemented!".format(mode))
@@ -288,11 +295,18 @@ class CifProcessor():
     def read_pkl(self, mode='', folder='data/processed/'):
         files = [f for f in os.listdir(folder) if '.pkl' in f]
         
-        if 'g' in mode:
-            files = [f for f in files if 'g' in f]
-            
-        if 'r' in mode:
-            files = [f for f in files if 'r' in f]
+        if 'rg' in mode:
+            print("Reading files with generic numbers on receptors and gproteins.")
+            files = [f for f in files if ('rg' in f)]
+        elif 'g' in mode:
+            print("Reading files with generic numbers on gproteins.")
+            files = [f for f in files if ('g' in f) and ('r' not in f)]
+        elif 'r' in mode:
+            print("Reading files with generic numbers on receptors.")
+            files = [f for f in files if ('r' in f) and ('g' not in f)]
+        else:
+            print("Reading files without generic numbers...")
+            files = [f for f in files if (not 'r' in f) and (not 'g' in f)]
         
         self.dfl = []
         for f in files:
@@ -442,7 +456,6 @@ class CifProcessor():
             start_uniprot = row['unp_start']
             end_uniprot = row['unp_end']
             uniprot_id = row['uniprot']
-            
             if map_identifier == uniprot_identifier:
                 if ((end_label_seq_id-start_label_seq_id) != (end_uniprot-start_uniprot)) and ref_uniprot:
                     print("Using uniprot as a reference, due to missmatch in SIFTS!")
@@ -833,35 +846,43 @@ class CifProcessor():
         lroi = []
         for la in locnl_a:
             for lb in locnl_b:
-                range_a = range(la[0], la[1])
-                range_b = range(lb[0], lb[1])
-                overlap = list(set(range_a).intersection(range_b))
+                range_a = range(la[0], la[1]+1)
+                range_b = range(lb[0], lb[1]+1)
+                overlap = list(set(range_a).intersection(set(range_b)))
                 if len(overlap)>0:
                     start = min(overlap)
                     end = max(overlap)
                     lroi.append((start, end))
         df_roi = pd.DataFrame(dict(lroi).items(), columns =  ['start', 'end'])
         
-        ls_a = list(zip(range(0, len(list(a))), list(a)))             
+        ls_a = list(zip(range(0, len(list(a))), list(a)))         
         ls_a = [x for x in ls_a if x[1]!='-']
+        ls_a1, ls_a2 = list(zip(*ls_a))
+        ls_a = list(zip(*list(zip(ls_a1, ls_a2, pdb_labels))))
         
-        df_a = pd.DataFrame(dict(ls_a).items(), columns = ['align_idx', 'pdb_res'])
-        df_a['pdb_seq_id'] = pdb_labels
+        df_a = pd.DataFrame({'align_idx': ls_a[0], 
+                             'pdb_res': ls_a[1], 
+                             'pdb_seq_id': ls_a[2]})
         
         func_a = lambda x: (df_a.align_idx == x.start) | (df_a.align_idx == x.end)
         df_a = df_a[df_roi.apply(func_a, axis=1).any()]
         
-        
         ls_b = list(zip(range(0, len(list(b))), list(b)))
-        df_b = pd.DataFrame(dict(ls_b).items(), columns = ['align_idx', 'uniprot_res'])
+        ls_b1, ls_b2 = list(zip(*ls_b))
+        ls_b = list(zip(*list(zip(ls_b1, ls_b2, list(range(1, len(ls_b1)+1))))))
         
-        df_b['uniprot_seq_id'] = list(range(1, len(df_b)+1))
+        df_b = pd.DataFrame({'align_idx': ls_b[0], 
+                             'uniprot_res': ls_b[1], 
+                             'uniprot_seq_id': ls_b[2]})
+        
         func_b = lambda x: (df_b.align_idx == x.start) | (df_b.align_idx == x.end)
         df_b = df_b[df_roi.apply(func_b, axis=1).any()]
-        
         map_df = pd.merge(df_a, df_b, on='align_idx').reset_index(drop=True)
+                
+        if len(map_df)%2 != 0:
+            print("Did not find equal number of start and end points in region of interests!")
+            return []
         
-        assert len(map_df)%2 == 0, print("Did not find equal number of start and end points in region of interests!")
         
         list_of_maps = []
         for m in range(int(len(map_df)/2)):
@@ -899,27 +920,27 @@ class CifProcessor():
             df['unp_end'] = [map_['end_uniprot'] for _ in range(3)]
             map_df_list.append(df)
         stacked_maps = pd.concat(map_df_list)
-        print(stacked_maps)
         return stacked_maps
         
     
     def _assign_res_nums_g(self, pdb_id, mappings, structure, uniprot_gprot_list, gprot_df, res_table, fill_H5=False):
-        print("assinging res_nums to gprot of", pdb_id)
         
-        try:
-            maps_stacked = self.get_stacked_maps_g(pdb_id, mappings, uniprot_gprot_list)
-            print("Mapping found!")
-        except:
-            print("No mapping (no uniprot-seq) information found! ====> PRESUMABLY A MINI G!")
-            if self.allow_exception:
-                return structure
-            else:
+        if self.table[self.table['PDB']==pdb_id]['State'].iloc[0] == 'Active':
+            print("assinging res_nums to gprot of", pdb_id)
+            try:
+                maps_stacked = self.get_stacked_maps_g(pdb_id, mappings, uniprot_gprot_list)
+                no_mapping=False
+                print("Mapping found!")
+            except:
+                print("No mapping (no uniprot-seq) information found! ====> PRESUMABLY A MINI G!")
+                no_mapping=True
                 maps_stacked = self._assign_res_nums_mini_g(pdb_id, structure, uniprot_gprot_list, gprot_df, res_table)
-        
-        if 'residue_number' in maps_stacked.index:
-            pass
+            if 'residue_number' in maps_stacked.index:
+                pass
+            else:
+                print("Empty mapping found!")
+                return structure
         else:
-            print("Empty mapping found!")
             return structure
 
         selection = maps_stacked[maps_stacked['PDB']==pdb_id]
@@ -946,24 +967,60 @@ class CifProcessor():
                 start_uniprot = row['unp_start']
                 end_label_seq_id = row['end']
                 end_uniprot = row['unp_end']
+                
+                
+                print("start_uni {} > end_uni {}".format(start_uniprot, end_uniprot))
+                print("start_pdb {} > end_pdb {}".format(start_label_seq_id, end_label_seq_id))
                 # the start -> end should be a shift (if not we have to do an alignment eg. 6FUF)
                 # iterate from start_label_seq_id to end_label_seq_id
-                seq_len = end_label_seq_id - start_label_seq_id
+                
                 structure['gprot_pos'] = ''
                 structure['uniprot_comp_id'] = ''
                 structure['fam_comp_id'] = ''
-                for k in range(seq_len + 1):
-                    idx_seq = k + start_label_seq_id
-                    idx_uni = k + start_uniprot - 1
-                    line = structure[(structure['label_seq_id'] == idx_seq) &
-                                     (structure['label_atom_id'] == 'CA') &
-                                     (structure['auth_asym_id'] == pref_chain)]
-                    if len(line) > 0:
-                        structure.at[line.index[0], 'label_2_uni'] = idx_uni + 1
-                        if line['label_2_uni'].iloc[0] in list(cgn_df.index):
-                            structure.at[line.index[0], 'gprot_pos'] = cgn_df.iloc[idx_uni]['cgn']
-                            structure.at[line.index[0], 'uniprot_comp_id'] = cgn_df.iloc[idx_uni]['seq_res']
-                            structure.at[line.index[0], 'fam_comp_id'] = cgn_df.iloc[idx_uni]['fam_seq_res']
+                
+                # THESE ARE OUTLIERS!! (SELF-ALIGNED)
+                if no_mapping:
+                    print("mini g setting index += 1")
+                    cgn_df.index += 1
+                    print("looking for idx_uni in cgn_df {}".format(cgn_df))
+                    seq_ids = structure[(structure['label_seq_id'] >= start_label_seq_id) &
+                                        (structure['label_seq_id'] <= end_label_seq_id) &
+                                        (structure['label_atom_id'] == 'CA') &
+                                        (structure['auth_asym_id'] == pref_chain)]['label_seq_id']
+                    seq_ids = list(seq_ids)
+                    for k, idx_seq in enumerate(seq_ids):
+                        idx_uni = k + start_uniprot
+                        print("idx_uni: {} <> idx_seq: {}".format(idx_uni, idx_seq))
+                        if idx_uni < 1000:
+                            line = structure[(structure['label_seq_id'] == idx_seq) &
+                                             (structure['label_atom_id'] == 'CA') &
+                                             (structure['auth_asym_id'] == pref_chain)]
+                            if len(line) > 0:
+                                structure.at[line.index[0], 'label_2_uni'] = idx_uni
+                                if idx_uni in list(cgn_df.index):
+                                    idx_uni -= 1
+                                    structure.at[line.index[0], 'gprot_pos'] = cgn_df.iloc[idx_uni]['cgn']  # this is the error
+                                    structure.at[line.index[0], 'uniprot_comp_id'] = cgn_df.iloc[idx_uni]['seq_res']
+                                    structure.at[line.index[0], 'fam_comp_id'] = cgn_df.iloc[idx_uni]['fam_seq_res']
+                                    print("Found corr. gen num!")
+                
+                # THESE ARE THE GPROTS WITH SIFTS
+                else:
+                    seq_len = end_label_seq_id - start_label_seq_id
+                    for k in range(seq_len):
+                        idx_seq = k + start_label_seq_id + 1
+                        idx_uni = k + start_uniprot
+                        print("idx_uni: {} <> idx_seq: {}".format(idx_uni, idx_seq))
+                        line = structure[(structure['label_seq_id'] == idx_seq) &
+                                         (structure['label_atom_id'] == 'CA') &
+                                         (structure['auth_asym_id'] == pref_chain)]
+                        if len(line) > 0:
+                            structure.at[line.index[0], 'label_2_uni'] = idx_uni
+                            if line['label_2_uni'].iloc[0] in list(cgn_df.index):
+                                print("Found corr. gen num!")
+                                structure.at[line.index[0], 'gprot_pos'] = cgn_df.iloc[idx_uni]['cgn']
+                                structure.at[line.index[0], 'uniprot_comp_id'] = cgn_df.iloc[idx_uni]['seq_res']
+                                structure.at[line.index[0], 'fam_comp_id'] = cgn_df.iloc[idx_uni]['fam_seq_res']
             else:
                 return structure
             if fill_H5:
@@ -1051,7 +1108,9 @@ class CifProcessor():
                                             res_table,
                                             fill_H5)
                 self.dfl[i] = s
-                
-        self.to_pkl(mode='rg', folder=folder, overwrite=overwrite)
+        if 'gen_pos' in list(self.dfl[0].columns):
+            self.to_pkl(mode='rg', folder=folder, overwrite=overwrite)
+        else:
+            self.to_pkl(mode='g', folder=folder, overwrite=overwrite)
         self.dfl_to_list()
 
