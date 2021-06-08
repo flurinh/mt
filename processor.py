@@ -385,6 +385,7 @@ class CifProcessor():
             Seq=StringIO(cData)
             pSeq=list(SeqIO.parse(Seq,'fasta'))
             pSeq0 = pSeq[0]
+            # print("Full Seq:", str(pSeq0.seq))
             return str(pSeq0.seq)
         except:
             return ''
@@ -458,7 +459,8 @@ class CifProcessor():
             uniprot_id = row['uniprot']
             if map_identifier == uniprot_identifier:
                 if ((end_label_seq_id-start_label_seq_id) != (end_uniprot-start_uniprot)) and ref_uniprot:
-                    print("Using uniprot as a reference, due to missmatch in SIFTS!")
+                    print("{}: Using uniprot (looking up {}) as a reference, due to missmatch in SIFTS!"\
+                          .format(pdb_id, uniprot_id))
                     # ---> I need a uniprot number corresponding to each of the label_seq_ids!!!!
                     uni_seq = self.get_uniprot_seq(uniprot_identifier)
                     # TODO: 1) make a dict for each pdb-residue- and -label_seq_id-pair
@@ -518,7 +520,7 @@ class CifProcessor():
                   else [x.gen_pos, x.uniprot_comp_sid, x.gen_pos1, x.gen_pos2], axis=1, result_type='expand')
         return data
     
-    def assign_generic_numbers_r(self, f, pdb_ids=[], overwrite=True, folder='data/processed/'):
+    def assign_generic_numbers_r(self, f, pdb_ids=[], overwrite=True, folder='data/processed/', ref_uniprot=True):
         if isinstance(pdb_ids, str):
             pdb_ids = [pdb_ids]
         if len(pdb_ids) > 0:
@@ -534,14 +536,14 @@ class CifProcessor():
                     pass
                 try:
                     structure = self.dfl[dfl_indices[i]]
-                    s = self._assign_res_nums_r(structure)
+                    s = self._assign_res_nums_r(structure, ref_uniprot=ref_uniprot)
                     self.dfl[dfl_indices[i]] = s
                 except:
                     print("Error parsing", pdb_id)
             else:
                 pdb_id = self.dfl_list[dfl_indices[i]]
                 structure = self.dfl[dfl_indices[i]]
-                s = self._assign_res_nums_r(structure)
+                s = self._assign_res_nums_r(structure, ref_uniprot=ref_uniprot)
                 self.dfl[dfl_indices[i]] = s
         
         self.to_pkl(mode='r', folder=folder, overwrite=overwrite)
@@ -1094,7 +1096,7 @@ class CifProcessor():
                                                 gprot_df,
                                                 res_table,
                                                 fill_H5)
-                    self.dfl[i] = s
+                    self.dfl[dfl_list_f_indices[i]] = s
                 except:
                     print("Error parsing", pdb_id)
             else:
@@ -1107,10 +1109,7 @@ class CifProcessor():
                                             gprot_df,
                                             res_table,
                                             fill_H5)
-                self.dfl[i] = s
-        if 'gen_pos' in list(self.dfl[0].columns):
-            self.to_pkl(mode='rg', folder=folder, overwrite=overwrite)
-        else:
-            self.to_pkl(mode='g', folder=folder, overwrite=overwrite)
+                self.dfl[dfl_list_f_indices[i]] = s
+        self.to_pkl(mode='rg', folder=folder, overwrite=overwrite)
         self.dfl_to_list()
 

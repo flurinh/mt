@@ -3,6 +3,55 @@ import numpy as np
 from scipy.spatial.distance import cdist, pdist
 import seaborn as sns
 from matplotlib import rcParams
+import math
+import plotly.graph_objects as go
+
+
+ATOM_LIST = ['CA']
+
+
+#############################################################################################################################
+
+# SELECTION
+
+def atom_filter(df, atom_list=ATOM_LIST):
+    df = df[df['label_atom_id'].isin(atom_list)]
+    return df
+
+
+def section_filter(df, chain='r', gprot_region='H5', start=3.40, end=3.52):
+    if chain == 'r':
+        df = df[df['gen_pos']!='']
+        df = df[df['gen_pos1'] >= start]
+        df = df[df['gen_pos1'] <= end]
+    if chain == 'g':
+        df = df[df['gprot_pos']!='']
+        r = ['G.'+gprot_region+'.'+str(x).zfill(2) for x in range(100) if (x >= start) & (x <= end)]
+        df = df[df['gprot_pos'].isin(r)]
+    return df
+
+
+def get_cell(dataframe, row_idx, col_idx):
+    if (row_idx in dataframe.index.to_list()) & (col_idx in dataframe.columns.to_list()):
+        return dataframe.loc[row_idx, col_idx].astype(float)
+    else:
+        return None
+    
+
+#############################################################################################################################
+
+# DISTANCE ANALYSIS
+
+
+def get_coords(df, center=False):
+    df = df[['Cartn_x', 'Cartn_y', 'Cartn_z']].astype(np.float)
+    mean_list = []
+    for c in df.columns:
+        mean_list.append(df[c].mean())
+    if center:
+        for c in df.columns:
+            df[c] = df[c] - df[c].mean()
+    return df.to_numpy(), mean_list
 
 
 def get_closest_atoms(res1: pd.DataFrame, res2: pd.DataFrame):
@@ -16,9 +65,11 @@ def get_closest_atoms(res1: pd.DataFrame, res2: pd.DataFrame):
     print(dists[idx[0], idx[1]])
     return res1.iloc[idx1], res2.iloc[idx2]
 
+
 def dists_to_frame(pdb_id, dists, col_x, col_y):
     df = pd.DataFrame(dists, columns = col_x)
     return df.set_index([col_y])
+
 
 def get_min_dist_table(l, section='H5', poi=('G.H5.23', 3.50), start=3.40, end=3.53, eps=0.05):
     if (start == None) or (end == None):
@@ -51,11 +102,12 @@ def get_min_dist_table(l, section='H5', poi=('G.H5.23', 3.50), start=3.40, end=3
                 g_xyz = g[['Cartn_x', 'Cartn_y', 'Cartn_z']]
                 
                 dists = get_closest_atoms(r, g)
-                
+                # TODO: ....
                 
         list_dists_df_list.append(dists_df_list)
         list_poi_list.append(poi_list)
     return list_poi_list, list_dists_df_list
+
 
 def get_interaction_tables(l, section='H5', poi=('G.H5.23', 3.50), start=3.40, end=3.53, eps=0.05):
     if (start == None) or (end == None):
@@ -101,11 +153,32 @@ def get_interaction_tables(l, section='H5', poi=('G.H5.23', 3.50), start=3.40, e
     return list_poi_list, list_dists_df_list
 
 
-def get_cell(dataframe, row_idx, col_idx):
-    if (row_idx in dataframe.index.to_list()) & (col_idx in dataframe.columns.to_list()):
-        return dataframe.loc[row_idx, col_idx].astype(float)
-    else:
-        return None
+#############################################################################################################################
+    
+# SECONDARY STRUCTURE
+
+
+def get_helix(xyz):
+    # Do an SVD on the mean-centered data.
+    uu, dd, vv = np.linalg.svd(xyz)
+    v = vv[0]  # select first component
+    return v
+
+
+def dotproduct(v1, v2):
+    return sum((a*b) for a, b in zip(v1, v2))
+
+
+def length(v):
+    return math.sqrt(dotproduct(v, v))
+
+
+def angle(v1, v2, mode='degree'):
+    if mode=='degree':
+        return math.acos(dotproduct(v1, v2) / (length(v1) * length(v2))) / math.pi * 180
+
+    
+#############################################################################################################################
     
     
     
@@ -141,17 +214,6 @@ def make_overview_df(dists_df_list):
     mean_df = mean_df.sort_index().reindex(sorted(mean_df.columns), axis=1).astype(float)
     std_df = std_df.sort_index().reindex(sorted(std_df.columns), axis=1).astype(float)
     return occ_df, mean_df, std_df
-
-
-def make_overview_plots(df, title='Occurances', cl='A', gprot='Gs', figsize=(20, 15), path='plots/', show=True, save=False):
-    name = title + '_' + cl + '_' + gprot
-    rcParams['figure.figsize'] = 20, 15
-    ax = sns.heatmap(df, cmap='RdYlGn_r', linewidths=.1, annot=True)
-    ax.set_title(title + ' ' + cl + ' ' + gprot)
-    if show:
-        ax.plot()
-    if save:
-        ax.figure.savefig(path+name+'.png')
         
         
 def get_overview_diff(std_df1, std_df2, mean_df1, mean_df2, ab=False, cutoff_mean=10):
@@ -160,9 +222,9 @@ def get_overview_diff(std_df1, std_df2, mean_df1, mean_df2, ab=False, cutoff_mea
     ind1 = std_df1.index.to_list()
     ind2 = std_df2.index.to_list()
     if col1 != col2:
-        print("receptor gen numbers do not match")
+        print("Receptor gen numbers do not match")
     if ind1 != ind2:
-        print("gprotein gen numbers do not match")
+        print("Gprotein gen numbers do not match")
     col = sorted(list(set(col1+col2)))
     ind = sorted(list(set(ind1+ind2)))
     val1 = std_df1.to_numpy().astype(float)
@@ -175,3 +237,83 @@ def get_overview_diff(std_df1, std_df2, mean_df1, mean_df2, ab=False, cutoff_mea
     data[mask_m1] = np.nan
     data[mask_m2] = np.nan
     return pd.DataFrame(data=data, index=ind, columns=col)
+
+
+#############################################################################################################################
+
+# PLOTTING
+
+
+def make_overview_plots(df, title='Occurances', cl='A', gprot='Gs', figsize=(20, 15), path='plots/', show=True, save=False):
+    name = title + '_' + cl + '_' + gprot
+    rcParams['figure.figsize'] = 20, 15
+    ax = sns.heatmap(df, cmap='RdYlGn_r', linewidths=.1, annot=True)
+    ax.set_title(title + ' ' + cl + ' ' + gprot)
+    if show:
+        ax.plot()
+    if save:
+        ax.figure.savefig(path+name+'.png')
+
+
+def plot_helix(points, helix, mean, name):
+    P = go.Scatter3d(
+        x=points[:, 0],
+        y=points[:, 1],
+        z=points[:, 2],
+        mode='markers',
+        name=name,
+        marker={
+            'size': 7,
+            'opacity': 0.8,
+        }
+    )
+    H = go.Scatter3d(
+        x=helix.T[0] + mean[0], 
+        y=helix.T[1] + mean[1],
+        z=helix.T[2] + mean[2],
+        mode='lines',
+        name='Helix',
+        marker={
+            'size': 7,
+            'opacity': 0.8,
+        })
+    # Configure the layout.
+    layout = go.Layout(
+        margin={'l': 0, 'r': 0, 'b': 0, 't': 0}
+    )
+    data = [P, H]
+    plot_figure = go.Figure(data=data, layout=layout)
+    plot_figure.show()    
+
+
+def plot_helices(helix_list: list):
+    data = []
+    for points, helix, mean, name in helix_list:
+        P = go.Scatter3d(
+            x=points[:, 0],
+            y=points[:, 1],
+            z=points[:, 2],
+            mode='markers',
+            name=name,
+            marker={
+                'size': 7,
+                'opacity': 0.8,
+            }
+        )
+        H = go.Scatter3d(
+            x=helix.T[0] + mean[0], 
+            y=helix.T[1] + mean[1],
+            z=helix.T[2] + mean[2],
+            mode='lines',
+            name='Helix',
+            marker={
+                'size': 7,
+                'opacity': 0.8,
+            })
+        data.append(P)
+        data.append(H)
+    layout = go.Layout(
+        margin={'l': 0, 'r': 0, 'b': 0, 't': 0}
+    )
+    plot_figure = go.Figure(data=data, layout=layout)
+    plot_figure.show()
