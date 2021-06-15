@@ -1,10 +1,26 @@
-from deprecated.gpcrdb_soup import *
+# from deprecated.gpcrdb_soup import *
 from tqdm import tqdm
 import numpy as np
+import pandas as pd
 # Import pairwise2 module
 from Bio import pairwise2
 # Import format_alignment method
 import ast
+
+
+
+def find_sections(nums, min_length):
+    nums.sort()
+    nums.append(1e9)
+    ans=[]
+    l=nums[0]
+    for i in range(1,len(nums)):
+        if nums[i] != nums[i-1] + 1:
+            if (nums[i-1] - l) >= min_length:
+                ans.append((l, nums[i-1]))
+            l=nums[i]
+    return ans
+
 
 
 def clean_alignment(al_df):
@@ -124,7 +140,8 @@ def get_align_dict(full: pd.DataFrame):
     return full.merge(a_df, how='inner', left_on='PDB', right_on='PDB')  # ignore_index=True
 
 
-def complete_data(full: pd.DataFrame, max_std_alignment=None, elongate=True, padding_r=5, target='NPFIY', filter_bad_checks=False):
+def complete_data(full: pd.DataFrame, 
+                  max_std_alignment=None, elongate=True, padding_r=5, target='NPFIY', filter_bad_checks=False):
     # get alignment: https://towardsdatascience.com/pairwise-sequence-alignment-using-biopython-d1a9d0ba861f
     complete = get_align_dict(full)
     # filter by maximum alignment standard deviation (basically if it is wrong)

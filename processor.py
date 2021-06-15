@@ -1,4 +1,5 @@
 from utils3 import *
+from utils2 import *
 import pandas as pd
 import os
 import sys
@@ -360,15 +361,17 @@ class CifProcessor():
         return list(zip(sequence_numbers, amino_acids, generic_numbers))
 
 
-    def get_generic_number(self, zipped_pos_dict, l2u, comp_sid):
+    def get_generic_number(self, zpd0, zipped_pos_dict, l2u, comp_sid):
         if l2u >= 0:
-            if l2u in list(zip(*zipped_pos_dict))[0]:
-                idx = list(zip(*zipped_pos_dict))[0].index(l2u)
+            if l2u in zpd0:
+                idx = zpd0.index(l2u)
                 row = zipped_pos_dict[idx]
+                f0 = float(row[2].split('x')[0])
+                f1 = float(row[2].split('x')[1])
                 if row[1] == comp_sid:
-                    return row[2], row[1], float(row[2].split('x')[0]), int(row[2].split('x')[1])
+                    return row[2], row[1], f0, f1
                 else:
-                    return row[2]+'?', row[1], float(row[2].split('x')[0]), int(row[2].split('x')[1])
+                    return row[2]+'?', row[1], f0, f1
             else:
                 return ['', '', 0, 0]
         else:
@@ -394,9 +397,9 @@ class CifProcessor():
     def _get_res_nums(self, roi_idxs, a, b):
         al = list(a)
         bl = list(b)
-        ai_ = 0
-        bj_ = roi_idxs[0]
-        ab = []
+        ai_ = 0  # note this is the position in the list of pdb seq id numbers (roi_idxs)
+        bj_ = 1  # note this is the uniprot seq id
+        ab = []  # contains indices of b where a <> b
         abij = []
         for _ in range(len(al)):
             ai = al[_]
@@ -415,21 +418,86 @@ class CifProcessor():
                     ai_+=1
             else:
                 # ai: '-', bj: '?'
+                # there is no case where ai: '-' and  bi: '-'
                 bj_+=1
         return abij, ab
 
+    
+    def _label_2_uni_via_uniprot(self, data,
+                                pdb_id, uniprot_id, uniprot_identifier, 
+                                start_label_seq_id, end_label_seq_id,
+                                start_uniprot, end_uniprot,
+                                pref_chain):
+        print("{}: Using uniprot (looking up {}) as a reference, due to missmatch in SIFTS!"\
+              .format(pdb_id, uniprot_id))
+        # ---> I need a uniprot number corresponding to each of the label_seq_ids!!!!
+        uni_seq = self.get_uniprot_seq(uniprot_identifier)
+        # TODO: 1) make a dict for each pdb-residue- and -label_seq_id-pair
+        roi = data[(data['label_seq_id'] >= start_label_seq_id) &
+                        (data['label_seq_id'] <= end_label_seq_id) &
+                        (data['label_atom_id'] == 'CA') &
+                        (data['auth_asym_id'] == pref_chain)][['label_seq_id', 'label_comp_sid']]
+        roi_idxs = list(roi['label_seq_id'])
+        pdb_res_list = ''.join(list(roi['label_comp_sid']))
+        #       2) make a dict for each uniprot-residue- and -uniprot_seq_id-pair
+        uni_seq_list = list(uni_seq)[start_uniprot:end_uniprot]
+        idxs = [x+1 for x in range(len(uni_seq_list))]
+        uni_dict = dict(zip(idxs, uni_seq_list))
+        # DO A SEQ ALIGNMENT
+        a, _, b, _ = self._get_pairwise_indices(pdb_res_list, uni_seq, open_gap_pen=-10, ext_gap_pen=-0.05)
+        abij, ab = self._get_res_nums(roi_idxs, a, b)
+        label_dict = dict(zip(abij, ab))
+        # I need a dict of pdb_indices -> uniprot_indices
+        lines = data[(data['label_seq_id'] >= start_label_seq_id) &
+                     (data['label_seq_id'] <= end_label_seq_id) &
+                     (data['label_atom_id'] == 'CA') &
+                     (data['auth_asym_id'] == pref_chain)]
+        print("start pdb:", start_label_seq_id)
+        print("start uni:", start_uniprot)
+        
+        for k in range(len(lines)):
+            line = lines.iloc[k]
+            idx = list(lines.index)[k]
+            pdb_seq_label = line['label_seq_id']
+            keys = [int(x) for x in list(label_dict.keys())]
+            if int(pdb_seq_label) in list(keys):
+                data.at[idx, 'label_2_uni'] = label_dict[int(pdb_seq_label)]
+            else:
+                data.at[idx, 'label_2_uni'] = 0
+        return data
+    
+    
+    def _check_label_2_uniprot(self, data, max_frac=0.1, max_len=8):
+        l2uni = list(data['gen_pos'])
+        l2uni_qm = [x for x in l2uni if '?' in x]
+        l2uni_qm_idx = [y for y, x in enumerate(l2uni) if '?' in x]
+        if len(l2uni) * max_frac < len(l2uni_qm):
+            return True
+        intervals = find_sections(l2uni_qm_idx, min_length = 3)
+        interval_lengths = [x[1]- x[0] for x in intervals]
+        print("intervals :", interval_lengths)
+        error = False
+        for intlen in interval_lengths:
+            if intlen > max_len:
+                error = True
+        return error
+    
+    
     # def _assign_res_nums_g(self, pdb_id, mappings, structure, uniprot_gprot_list, gprot_df, res_table):
     def _assign_res_nums_r(self, structure, ref_uniprot=True):
+        def make_r_columns(data):
+            data['label_2_uni'] = 0
+            data['gen_pos'] = ''
+            data['gen_pos1'] = 0
+            data['gen_pos2'] = 0
+            data['uniprot_comp_sid'] = ''
+            return data
         pdb_id = structure['PDB'].iloc[0]
         data = structure.reset_index().drop('index', axis=1)
         cols = data.columns
         columns = ['gen_pos', 'gen_pos1', 'gen_pos2', 'uniprot_comp_sid']
-        data['label_2_uni'] = 0
-        data['gen_pos'] = ''
-        data['gen_pos1'] = 0
-        data['gen_pos2'] = 0
-        data['uniprot_comp_sid'] = ''
         maps_stacked = self.get_stacked_maps(pdb_id)
+        
         if 'residue_number' in maps_stacked.index:
             pass
         else:
@@ -447,6 +515,9 @@ class CifProcessor():
         uniprot_identifier_ = data[data['PDB']==pdb_id]['identifier'].unique()
         uniprot_identifier = uniprot_identifier_[0]
         natoms = len(data[data['PDB']==pdb_id])
+        data = make_r_columns(data)
+        zipped_pos_dict = self.get_generic_nums(pdb_id)
+        zpd0 = list(zip(*zipped_pos_dict))[0]
         
         for j in range(len(pref_mapping)):
             row = pref_mapping.iloc[j].to_dict()
@@ -458,41 +529,11 @@ class CifProcessor():
             end_uniprot = row['unp_end']
             uniprot_id = row['uniprot']
             if map_identifier == uniprot_identifier:
-                if ((end_label_seq_id-start_label_seq_id) != (end_uniprot-start_uniprot)) and ref_uniprot:
-                    print("{}: Using uniprot (looking up {}) as a reference, due to missmatch in SIFTS!"\
-                          .format(pdb_id, uniprot_id))
-                    # ---> I need a uniprot number corresponding to each of the label_seq_ids!!!!
-                    uni_seq = self.get_uniprot_seq(uniprot_identifier)
-                    # TODO: 1) make a dict for each pdb-residue- and -label_seq_id-pair
-                    roi = data[(data['label_seq_id'] >= start_label_seq_id) &
-                                    (data['label_seq_id'] <= end_label_seq_id) &
-                                    (data['label_atom_id'] == 'CA') &
-                                    (data['auth_asym_id'] == pref_chain)][['label_seq_id', 'label_comp_sid']]
-                    roi_idxs = list(roi['label_seq_id'])
-                    pdb_res_list = ''.join(list(roi['label_comp_sid']))
-                    #       2) make a dict for each uniprot-residue- and -uniprot_seq_id-pair
-                    uni_seq_list = list(uni_seq)[start_uniprot:end_uniprot]
-                    idxs = [x+1 for x in range(len(uni_seq_list))]
-                    uni_dict = dict(zip(idxs, uni_seq_list))
-                    # DO A SEQ ALIGNMENT
-                    a, _, b, _ = self._get_pairwise_indices(pdb_res_list, uni_seq)
-                    abij, ab = self._get_res_nums(roi_idxs, a, b)
-                    label_dict = dict(zip(abij, ab))
-                    # I need a dict of pdb_indices -> uniprot_indices
-                    lines = data[(data['label_seq_id'] <= end_label_seq_id) &
-                                 (data['label_seq_id'] >= start_label_seq_id) &
-                                 (data['label_atom_id'] == 'CA') &
-                                 (data['auth_asym_id'] == pref_chain)]
-                    for k in range(len(lines)):
-                        line = lines.iloc[k]
-                        idx = list(lines.index)[k]                        
-                        pdb_seq_label = line['label_seq_id']
-                        keys = [int(x) for x in list(label_dict.keys())]
-                        if int(pdb_seq_label) in keys:
-                            data.at[idx, 'label_2_uni'] = label_dict[int(pdb_seq_label)]
-                        else:
-                            data.at[idx, 'label_2_uni'] = 0
-                else:
+                print()
+                print(map_pdb, uniprot_id)
+                error = (end_label_seq_id-start_label_seq_id) != (end_uniprot-start_uniprot)
+                if not error:
+                    print("Trying to assign error free uniprotlabels based on SIFTS!")
                     idxs = [x for x in range(natoms+1) \
                             if ((x <= end_label_seq_id) & (x >= start_label_seq_id))]
                     vals = [x + start_uniprot - start_label_seq_id for x in range(natoms+1) \
@@ -505,19 +546,44 @@ class CifProcessor():
                         lines = len(line)
                         if len(line) > 0:
                             data.at[line.index[0], 'label_2_uni'] = int(vals[k])
+                        
+                    data[['gen_pos', 'uniprot_comp_sid', 'gen_pos1', 'gen_pos2']] = data.apply(
+                        lambda x: self.get_generic_number(zpd0, zipped_pos_dict, x.label_2_uni, x.label_comp_sid) 
+                        if x.PDB == pdb_id 
+                        else [x.gen_pos, x.uniprot_comp_sid, x.gen_pos1, x.gen_pos2], axis=1, result_type='expand')
+                    # TODO: CHECK FOR ERRORS!
+                    error = self._check_label_2_uniprot(data, max_frac=0.1, max_len=8)
+                    print("Error Status:", error)
+                if error and ref_uniprot:
+                    print("Found error!")
+                    data = self._label_2_uni_via_uniprot(data,
+                                                         pdb_id, uniprot_id, uniprot_identifier, 
+                                                         start_label_seq_id, end_label_seq_id,
+                                                         start_uniprot, end_uniprot,
+                                                         pref_chain)
+                    
+                    data[['gen_pos', 'uniprot_comp_sid', 'gen_pos1', 'gen_pos2']] = data.apply(
+                        lambda x: self.get_generic_number(zpd0, zipped_pos_dict, x.label_2_uni, x.label_comp_sid) 
+                        if x.PDB == pdb_id 
+                        else [x.gen_pos, x.uniprot_comp_sid, x.gen_pos1, x.gen_pos2], axis=1, result_type='expand')
             else:
                 # Didnt find correct uniprotmap (not a gpcr) ==> map_identifier
                 pass
         
         # Generate generic numbers
-        zipped_pos_dict = self.get_generic_nums(pdb_id)
         if type(data) == pandas.core.series.Series:
             data = data.to_frame().T
         
         # THIS APPLY CALL IS VERY SLOW!!!
         data[['gen_pos', 'uniprot_comp_sid', 'gen_pos1', 'gen_pos2']] = data.\
-            apply(lambda x: self.get_generic_number(zipped_pos_dict, x.label_2_uni, x.label_comp_sid) if x.PDB==pdb_id\
+            apply(lambda x: self.get_generic_number(zpd0, zipped_pos_dict, x.label_2_uni, x.label_comp_sid) if x.PDB==pdb_id\
                   else [x.gen_pos, x.uniprot_comp_sid, x.gen_pos1, x.gen_pos2], axis=1, result_type='expand')
+        
+        # 4 replace slow apply call
+        # 5 assign uniprot labels in general!?
+        print("Final Error Check...")
+        error = self._check_label_2_uniprot(data, max_frac=0.05, max_len=8)
+        print("Error Status:", error)
         return data
     
     def assign_generic_numbers_r(self, f, pdb_ids=[], overwrite=True, folder='data/processed/', ref_uniprot=True):
@@ -538,6 +604,8 @@ class CifProcessor():
                     structure = self.dfl[dfl_indices[i]]
                     s = self._assign_res_nums_r(structure, ref_uniprot=ref_uniprot)
                     self.dfl[dfl_indices[i]] = s
+                    print("assigned dfl[{}] generic residue numbers for the receptor...".format(dfl_indices[i]))
+                    print(list(s.columns))
                 except:
                     print("Error parsing", pdb_id)
             else:
@@ -545,6 +613,7 @@ class CifProcessor():
                 structure = self.dfl[dfl_indices[i]]
                 s = self._assign_res_nums_r(structure, ref_uniprot=ref_uniprot)
                 self.dfl[dfl_indices[i]] = s
+                print("assigned dfl[{}] generic residue numbers for the receptor...".format(dfl_indices[i]))
         
         self.to_pkl(mode='r', folder=folder, overwrite=overwrite)
         self.dfl_to_list()
@@ -1027,6 +1096,9 @@ class CifProcessor():
                 return structure
             if fill_H5:
                 structure = self._assign_generic_numbers_h5(structure=structure)
+        # TODO: if the best alignment to the full gprotein is not of the specified type (gi/o, gs etc)
+        # ====> then first assign labels based on the best alignment of correct tpye
+        # ====> then complete the labels with anything else (best fit)
         return structure
     
     
