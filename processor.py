@@ -951,7 +951,7 @@ class CifProcessor():
         map_df = pd.merge(df_a, df_b, on='align_idx').reset_index(drop=True)
                 
         if len(map_df)%2 != 0:
-            print("Did not find equal number of start and end points in region of interests!")
+            print("Did not find equal number of start and end points in region of interests!\n", map_df)
             return []
         
         
@@ -1022,11 +1022,12 @@ class CifProcessor():
         mapping = mapping.sort_values('start')
         label_seq_ids = list(structure['label_seq_id'])
         if len(label_seq_ids) == 0:
-            print(mapping)
             print("Did not find label_seq_ids:", pdb_id)
             return structure
         nres = max(label_seq_ids)
         structure['gprot_pos'] = ''
+        structure['uniprot_comp_id'] = ''
+        structure['fam_comp_id'] = ''
         for j in range(len(mapping)):
             row = mapping.iloc[j].to_dict()
             pref_chain = row['chain_id']
@@ -1045,15 +1046,11 @@ class CifProcessor():
                 # the start -> end should be a shift (if not we have to do an alignment eg. 6FUF)
                 # iterate from start_label_seq_id to end_label_seq_id
                 
-                structure['gprot_pos'] = ''
-                structure['uniprot_comp_id'] = ''
-                structure['fam_comp_id'] = ''
-                
                 # THESE ARE OUTLIERS!! (SELF-ALIGNED)
                 if no_mapping:
                     print("mini g setting index += 1")
                     cgn_df.index += 1
-                    print("looking for idx_uni in cgn_df {}".format(cgn_df))
+                    # print("looking for idx_uni in cgn_df {}".format(cgn_df))
                     seq_ids = structure[(structure['label_seq_id'] >= start_label_seq_id) &
                                         (structure['label_seq_id'] <= end_label_seq_id) &
                                         (structure['label_atom_id'] == 'CA') &
@@ -1061,7 +1058,6 @@ class CifProcessor():
                     seq_ids = list(seq_ids)
                     for k, idx_seq in enumerate(seq_ids):
                         idx_uni = k + start_uniprot
-                        print("idx_uni: {} <> idx_seq: {}".format(idx_uni, idx_seq))
                         if idx_uni < 1000:
                             line = structure[(structure['label_seq_id'] == idx_seq) &
                                              (structure['label_atom_id'] == 'CA') &
@@ -1073,25 +1069,25 @@ class CifProcessor():
                                     structure.at[line.index[0], 'gprot_pos'] = cgn_df.iloc[idx_uni]['cgn']  # this is the error
                                     structure.at[line.index[0], 'uniprot_comp_id'] = cgn_df.iloc[idx_uni]['seq_res']
                                     structure.at[line.index[0], 'fam_comp_id'] = cgn_df.iloc[idx_uni]['fam_seq_res']
-                                    print("Found corr. gen num!")
-                
+                                    print("Found corr. gen num! idx_uni: {} <> idx_seq: {} <> gen pos {}"\
+                                          .format(idx_uni, idx_seq, structure.at[line.index[0], 'gprot_pos']))
                 # THESE ARE THE GPROTS WITH SIFTS
                 else:
                     seq_len = end_label_seq_id - start_label_seq_id
                     for k in range(seq_len):
                         idx_seq = k + start_label_seq_id + 1
                         idx_uni = k + start_uniprot
-                        print("idx_uni: {} <> idx_seq: {}".format(idx_uni, idx_seq))
                         line = structure[(structure['label_seq_id'] == idx_seq) &
                                          (structure['label_atom_id'] == 'CA') &
                                          (structure['auth_asym_id'] == pref_chain)]
                         if len(line) > 0:
                             structure.at[line.index[0], 'label_2_uni'] = idx_uni
                             if line['label_2_uni'].iloc[0] in list(cgn_df.index):
-                                print("Found corr. gen num!")
                                 structure.at[line.index[0], 'gprot_pos'] = cgn_df.iloc[idx_uni]['cgn']
                                 structure.at[line.index[0], 'uniprot_comp_id'] = cgn_df.iloc[idx_uni]['seq_res']
                                 structure.at[line.index[0], 'fam_comp_id'] = cgn_df.iloc[idx_uni]['fam_seq_res']
+                                print("Found corr. gen num! idx_uni: {} <> idx_seq: {} <> gen pos {}"\
+                                      .format(idx_uni, idx_seq, structure.at[line.index[0], 'gprot_pos']))
             else:
                 return structure
             if fill_H5:
