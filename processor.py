@@ -103,29 +103,44 @@ class CifProcessor():
         return files, pdb_ids
     
     
-    def make_metainfo(self, overwrite=True):
-        del self.mappings
-        del self.numbering
-        self.mappings = pd.DataFrame()
-        self.numbering = pd.DataFrame()
+    def make_metainfo(self, reload_numbering=False, reload_mapping=False, overwrite=True):
+        if reload_mapping:
+            del self.mappings
+            self.mappings = pd.DataFrame()
+        if reload_numbering:
+            del self.numbering
+            self.numbering = pd.DataFrame()
         for i, pdb_id in tqdm(enumerate(self.pdb_ids)):
-            if i < self.limit:
-                protein, family = self.get_prot_info(pdb_id)
-                if protein == None:
-                    pass
-                else:
+            if i == 0:
+                if reload_mapping:
+                    print("reload mapping i = 0")
+                    self.mappings = self.get_mapping(pdb_id)
+                elif pdb_id not in list(self.mappings['PDB'].unique()):
+                    print("reload mapping i = 0, adding new data for", pdb_id)
+                    self.mappings = self.mappings.append(self.get_mapping(pdb_id), ignore_index=True)
+                if reload_numbering:
+                    protein, family = self.get_prot_info(pdb_id)
                     numbering = self.get_res_nums(protein)
-                    if i == 0:
-                        self.mappings = self.get_mapping(pdb_id)
-                        numb = pd.DataFrame([pdb_id, protein, family, numbering]).T
-                        # numb = [pdb_id, protein, self.entry_to_ac(protein), family, numbering]
-                        numb.columns = ['PDB', 'identifier', 'family', 'numbering']
-                        self.numbering = self.numbering.append(numb)
-                    else:
-                        self.mappings = self.mappings.append(self.get_mapping(pdb_id), ignore_index=True)
-                        numb = pd.DataFrame(data=[pdb_id, protein, family, numbering]).T
-                        numb.columns = ['PDB', 'identifier', 'family', 'numbering']
-                        self.numbering = self.numbering.append(numb, ignore_index=True)
+                    numb = pd.DataFrame([pdb_id, protein, family, numbering]).T
+                    # numb = [pdb_id, protein, self.entry_to_ac(protein), family, numbering]
+                    numb.columns = ['PDB', 'identifier', 'family', 'numbering']
+                    self.numbering = self.numbering.append(numb)
+                elif pdb_id not in list(self.numbering['PDB'].unique()):
+                    protein, family = self.get_prot_info(pdb_id)
+                    numbering = self.get_res_nums(protein)
+                    numb = pd.DataFrame(data=[pdb_id, protein, family, numbering]).T
+                    numb.columns = ['PDB', 'identifier', 'family', 'numbering']
+                    self.numbering = self.numbering.append(numb, ignore_index=True)
+            else:
+                if reload_mapping or (pdb_id not in list(self.mappings['PDB'].unique())):
+                    print("loading mapping for", pdb_id)
+                    self.mappings = self.mappings.append(self.get_mapping(pdb_id), ignore_index=True)
+                if reload_numbering or (pdb_id not in list(self.numbering['PDB'].unique())):
+                    protein, family = self.get_prot_info(pdb_id)
+                    numbering = self.get_res_nums(protein)
+                    numb = pd.DataFrame(data=[pdb_id, protein, family, numbering]).T
+                    numb.columns = ['PDB', 'identifier', 'family', 'numbering']
+                    self.numbering = self.numbering.append(numb, ignore_index=True)
         if overwrite:
             self.to_pkl_metainfo()
 
@@ -501,6 +516,7 @@ class CifProcessor():
         if 'residue_number' in maps_stacked.index:
             pass
         else:
+            print("Found no mapping -> not assigning any residue numbers")
             return data
         if type(maps_stacked[maps_stacked['PDB']==pdb_id].\
                 loc['residue_number'][['chain_id', 'start','end','unp_start','unp_end', 'identifier', 'PDB']])\
@@ -605,7 +621,6 @@ class CifProcessor():
                     s = self._assign_res_nums_r(structure, ref_uniprot=ref_uniprot)
                     self.dfl[dfl_indices[i]] = s
                     print("assigned dfl[{}] generic residue numbers for the receptor...".format(dfl_indices[i]))
-                    print(list(s.columns))
                 except:
                     print("Error parsing", pdb_id)
             else:
@@ -843,6 +858,7 @@ class CifProcessor():
 
     
     def _assign_res_nums_mini_g(self, pdb_id, structure, uniprot_gprot_list, gprot_df, res_table):
+        print("_assign_res_nums_mini_g")
         uniprot_gprot_list = [x for x in uniprot_gprot_list if x != 'K7EL62']
         # 1) split complex into chains
         chains = list(structure['auth_asym_id'].unique())
@@ -1003,7 +1019,7 @@ class CifProcessor():
                 no_mapping=False
                 print("Mapping found!")
             except:
-                print("No mapping (no uniprot-seq) information found! ====> PRESUMABLY A MINI G!")
+                print("No mapping (no uniprot-seq) information found! ====> Assigning labels ourself!")
                 no_mapping=True
                 maps_stacked = self._assign_res_nums_mini_g(pdb_id, structure, uniprot_gprot_list, gprot_df, res_table)
             if 'residue_number' in maps_stacked.index:

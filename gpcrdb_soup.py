@@ -1,11 +1,15 @@
 from utils import *
 from bs4 import BeautifulSoup
-from tqdm import tqdm, trange
 import requests
 import re
 import urllib
 import time
 import pandas as pd
+from tqdm import tqdm
+from os import walk
+import requests
+from Bio.PDB.Polypeptide import *
+from Bio.PDB import PDBParser
 
 
 
@@ -15,86 +19,6 @@ COLS = ['cross',  'filler', 'uniprot(gene)', 'filler2', 'receptor family', 'Cl.'
         'D2x50 - S3x39', 'Sodium in structure', 'Authors', 'Reference', 'PDB date', 'Annotated']
 
 
-
-class Download():
-    def __init__(self, 
-                 path='data/',
-                 fileformat='pdb'):
-        if fileformat=='pdb':
-            self.path_pdb = path + 'pdb/'
-        else:
-            self.path_pdb = path + 'mmcif/'
-        self.path_alignment = path + 'alignments/'
-        self.path_table = path
-        
-        self.fileformat = fileformat
-        
-        self.table = None
-        self.filenames, self.pdb_ids = get_pdb_files(path=self.path_pdb)
-    
-    # ======================================================================================================================
-        
-    def download_alignment(self):
-        print("Not Implemented! TBD manually.")
-    
-    def download_pdbs(self, reload=False, update=False):
-        pdb_table_ids = self.table['PDB'].tolist()
-        missing = [x for x in pdb_table_ids if x not in self.pdb_ids]
-        if reload or (len(missing)>0):
-            print("Reloading pdb files...")
-            print("Missing pdbs:", missing)
-            for pdb in tqdm(missing):
-                url = get_rcsb_download(pdb, self.fileformat)
-                download_pdb(url, folder=self.path_pdb, fileformat=self.fileformat)
-        elif update:
-            self.update_pdbs()
-        self.filenames, self.pdb_ids = get_pdb_files(path=self.path_pdb)
-                
-    def download_table(self, reload=True, filename='data_table.pkl'):
-        table_path = self.path_table + filename
-        if reload or (not os.path.isfile(self.path_table+filename)):
-            self.table = get_table(reload=True, uniprot=False)
-            self.table = self.table.drop(columns=['filler', 'filler2', 
-                                                  'Refined Structure',  
-                                                  '% of Seq1', 'Name2', 'Fusion', 'Note', 
-                                                  '% of Seq2', 'Antibodies', 'Name1', 'Type1', 'Type2', 
-                                                  'D2x50 - S3x39', 'Sodium in structure', 'Authors', 'Reference', 
-                                                  'PDB date', 'Annotated', 'pdb_link'])
-        else:
-            self.table = pd.read_pickle(self.path_table)
-        print("writing gpcrdb table to file:", table_path)
-        self.table.to_pickle(table_path)        
-        
-    def add_row_table(self, 
-                      uniprot='',
-                      receptor_family='',
-                      cl='',
-                      species='',
-                      method='',
-                      pdb='',
-                      resolution='',
-                      pref_chain='A',
-                      state='Inactive',
-                      deg_act='-',
-                      family='-',
-                      subtype='-',
-                      function=''):
-        cols = self.table.columns
-        print(cols)
-        row = [uniprot, receptor_family, cl, species, method, pdb, resolution, pref_chain, state, deg_act, family, subtype, function]
-        print(len(cols))
-        print(len(row))
-        row_df = pd.DataFrame([row], columns=cols)
-        return row_df
-
-    # ======================================================================================================================
-    
-    def update_pdbs(self):
-        updatepdbs(self.path_pdb)
-    
-    # ======================================================================================================================
-    
-    
 def get_page(url='https://gpcrdb.org/structure/#'):
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
