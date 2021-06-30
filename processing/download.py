@@ -1,4 +1,4 @@
-from utils import *
+from processing.utils import *
 from bs4 import BeautifulSoup
 from tqdm import tqdm, trange
 import requests

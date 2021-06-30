@@ -26,7 +26,7 @@ class H5Net(nn.Module):
         m_dim=64,
         initialize_weights=True,
         fourier_features=4,
-        aggr="mean",
+        aggr="sum",
     ):
         super(H5Net, self).__init__()
 
@@ -43,7 +43,7 @@ class H5Net(nn.Module):
 
         # Atom type Embedding
         self.embedding = nn.Embedding(
-            num_embeddings=7, embedding_dim=self.embedding_dim
+            num_embeddings=5, embedding_dim=self.embedding_dim
         )
 
         # Previous ffnn
@@ -78,7 +78,7 @@ class H5Net(nn.Module):
             self.ffnn.apply(weights_init)
             nn.init.xavier_uniform_(self.embedding.weight)
          
-         # write attention on graph to use weighted feature aggregation
+         # Write attention on graph to use weighted feature aggregation
 
         
     def forward(self, batch):
@@ -103,7 +103,7 @@ class H5Net(nn.Module):
 
         features = scatter_mean(features, batch.batch, dim=0)  # why scatter mean?
 
-        features = F.sigmoid(self.ffnn[-1](features))
+        features = torch.sigmoid(self.ffnn[-1](features))
 
         return features
 

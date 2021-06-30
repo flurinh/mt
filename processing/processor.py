@@ -1,5 +1,5 @@
-from utils3 import *
-from utils2 import *
+from processing.utils3 import *
+from processing.utils2 import *
 import pandas as pd
 import os
 import sys
@@ -646,16 +646,16 @@ class CifProcessor():
         self.dfl_to_list()
 
     
-    def filter_dfl_via_table(self,
-                             pdb_ids=[],
-                             Species=None,
-                             State=None,
-                             Cl=None,
-                             Family=None,
-                             Subtype=None,
-                             Resolution=None,
-                             Function=None,
-                             gprotein=False):
+    def make_filter(self,
+                    pdb_ids=[],
+                    Species=None,
+                    State=None,
+                    Cl=None,
+                    Family=None,
+                    Subtype=None,
+                    Resolution=None,
+                    Function=None,
+                    gprotein=False):
         data = self.table
         if isinstance(pdb_ids, str):
             pdb_ids = [pdb_ids]
