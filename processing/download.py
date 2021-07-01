@@ -6,6 +6,7 @@ import re
 import urllib
 import time
 import pandas as pd
+from pathlib import Path
 
 
 
@@ -22,9 +23,18 @@ class Download():
                  fileformat='pdb'):
         if fileformat=='pdb':
             self.path_pdb = path + 'pdb/'
-        else:
+        elif fileformat=='cif':
             self.path_pdb = path + 'mmcif/'
+        else:
+            raise ValueError("unknown format")
+            
+        if not Path(self.path_pdb).exists():
+            raise OSError(f"Directory {self.path_pdb} not found")
+
         self.path_alignment = path + 'alignments/'
+        if not Path(self.path_alignment).exists():
+            raise OSError(f"Directory {self.path_alignment} not found")
+
         self.path_table = path
         
         self.fileformat = fileformat
@@ -91,10 +101,10 @@ class Download():
     
     def update_pdbs(self):
         updatepdbs(self.path_pdb)
-    
+
     # ======================================================================================================================
-    
-    
+
+
 def get_page(url='https://gpcrdb.org/structure/#'):
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -184,7 +194,7 @@ def get_rcsb_link(pdb_id: str, fileformat='pdb'):
     else:
         return None
 
-    
+
 def get_uniprot_link(uniprot_id: str):
     if uniprot_id == None:
         return None
@@ -196,7 +206,7 @@ def get_uniprot_link(uniprot_id: str):
     else:
         return None
 
-    
+
 def downloadzip(url: str, folder: str):
     if not os.path.isdir(folder):
         os.mkdir(folder)
@@ -214,7 +224,7 @@ def downloadzip(url: str, folder: str):
         print("Url invalid:", url)
         return False
 
-    
+
 def download(url: str, folder: str, fileformat: str):
     if not os.path.isdir(folder):
         os.mkdir(folder)
@@ -227,7 +237,7 @@ def download(url: str, folder: str, fileformat: str):
     except Exception:
         print("Url invalid:", url)
 
-    
+
 def download_pdb(url, folder, fileformat):
     download(url, folder, fileformat)
 
