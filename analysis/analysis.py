@@ -9,6 +9,16 @@ import plotly.graph_objects as go
 
 ATOM_LIST = ['CA']
 
+G_SECTION_DICT = {}
+R_SECTION_DICT = {'TM1': (1.45, 1.55),
+                  'TM2': (2.45, 2.55),
+                  'TM3': (3.40, 3.53),
+                  'TM4': (4.45, 4.55),
+                  'TM5': (5.45, 5.55),
+                  'TM6': (6.45, 6.55),
+                  'TM7': (7.4, 7.53),
+                  'H8':  (8.5, 8.6),}
+
 
 #############################################################################################################################
 
@@ -71,7 +81,7 @@ def dists_to_frame(pdb_id, dists, col_x, col_y):
     return df.set_index([col_y])
 
 
-def get_min_dist_table(l, section='H5', poi=('G.H5.23', 3.50), start=3.40, end=3.53, eps=0.05):
+def get_min_dist_table(p, l, section='H5', poi=('G.H5.23', 3.50), start=3.40, end=3.53, eps=0.05):
     if (start == None) or (end == None):
         start = poi[1] - eps
         end = poi[1] + eps
@@ -109,7 +119,7 @@ def get_min_dist_table(l, section='H5', poi=('G.H5.23', 3.50), start=3.40, end=3
     return list_poi_list, list_dists_df_list
 
 
-def get_interaction_tables(l, section='H5', poi=('G.H5.23', 3.50), start=3.40, end=3.53, eps=0.05):
+def get_interaction_tables(p, l, section='H5', poi=('G.H5.23', 3.50), start=3.40, end=3.53, eps=0.05):
     if (start == None) or (end == None):
         start = poi[1] - eps
         end = poi[1] + eps
@@ -137,7 +147,6 @@ def get_interaction_tables(l, section='H5', poi=('G.H5.23', 3.50), start=3.40, e
                            (ex['label_atom_id'] == 'CA')][['Cartn_x', 'Cartn_y', 'Cartn_z']].to_numpy().astype(float)
                 
                 dists = cdist(ra, ga).T
-                
                 
                 dist_df = dists_to_frame(pdb_id, dists, col_x, col_y)
                 if (poi[1] in col_x) & (poi[0] in col_y):
@@ -240,6 +249,106 @@ def get_overview_diff(std_df1, std_df2, mean_df1, mean_df2, ab=False, cutoff_mea
 
 
 #############################################################################################################################
+
+
+def count_g_positions(data):
+    cols = [x for x in range(100)]
+    gs_count_df = pd.DataFrame(columns=cols)
+    g_section_list = list(G_SECTION_DICT.keys())
+    for i in range(len(data)):
+        df = data[i]
+        new_g_section_list = list(set([x.split('.')[1] for x in df.gprot_pos.unique() if len(x.split('.'))==3]))
+        g_section_list += new_g_section_list
+        for gs in new_g_section_list:
+            if gs not in list(gs_count_df.index):
+                gs_count_df.loc[gs,:] = 0
+            posis = [int(x.split('.')[-1]) for x in df.gprot_pos.unique() if (gs in x) & (len(x.split('.'))==3)]
+            for pos in posis:
+                gs_count_df.loc[gs, pos] += 1
+    return gs_count_df.sort_index()
+
+
+def find_cont_sections_g(gs_count_df, min_count=40, min_length=8):
+    def find_sections(nums, min_length):
+        nums.sort()
+        nums.append(1e9)
+        ans=[]
+        l=nums[0]
+        for i in range(1,len(nums)):
+            if nums[i] != nums[i-1] + 1:
+                if (nums[i-1] - l) >= min_length:
+                    ans.append((l, nums[i-1]))
+                l=nums[i]
+        return ans
+    g_section_dict = {}
+    for section in list(gs_count_df.index):
+        sec = gs_count_df.loc[section, (gs_count_df > 0).any(axis=0)]
+        sec = sec.to_dict()
+        sec_keys = [x for x in list(sec.keys()) if sec[x] >= min_count]
+        g_section_dict[section] = find_sections(sec_keys, min_length)
+    return g_section_dict
+
+
+def make_cont_section_dict_g(cont_sec_g):
+    cont_sec_g_dict = {}
+    for key in list(cont_sec_g.keys()):
+        sections = cont_sec_g[key]
+        for s, sec in enumerate(sections):
+            cont_sec_g_dict[key+'_'+str(s)] = sec
+    return cont_sec_g_dict
+
+
+def calculate_section_helices(data):
+    g_section_list = list(G_SECTION_DICT.keys())
+    r_section_list = list(R_SECTION_DICT.keys())
+    columns = g_section_list + r_section_list
+    section_diff_df = pd.DataFrame(columns=columns)
+    for i in range(len(data)):
+        pdb = data[i].iloc[0]['PDB']
+        for c in columns:
+            if c in r_section_list:
+                df_r = section_filter(data[i].copy(), chain='r', start=R_SECTION_DICT[c][0], end=R_SECTION_DICT[c][1])
+                if len(df_r) > 0:
+                    if len(df_r[df_r['gen_pos'].str.contains('\?')])>3:
+                        df_r = df_r[~df_r['gen_pos'].str.contains('\?')]
+                xyz_r, mean_r = get_coords(df_r, False)
+                if (xyz_r.shape[0]>6):
+                    v_r = get_helix(xyz_r-np.asarray(mean_r))
+                    section_diff_df.loc[pdb, c] = v_r
+            elif (c in g_section_list):
+                c_, c_idx = c.split('_')
+                if c_ in [x.split('.')[1] for x in list(data[i].gprot_pos.unique()) if len(x.split('.'))==3]:
+                    df_g = section_filter(data[i].copy(), chain='g', gprot_region=c_, 
+                                          start=G_SECTION_DICT[c][0], end=G_SECTION_DICT[c][1])
+                    xyz_g, mean_g = get_coords(df_g, False)
+                    if (xyz_g.shape[0]>6):
+                        v_g = get_helix(xyz_g-np.asarray(mean_g))
+                        section_diff_df.loc[pdb, c] = v_g
+    return section_diff_df
+
+
+def calc_angles_between_helices(section_helices, idx):
+    cols = list(section_helices.columns)
+    section_angles_df = pd.DataFrame(columns=cols)
+    for i, c1 in enumerate(cols):
+        for j, c2 in enumerate(cols):
+            if i != j:
+                section_helix1 = section_helices[c1].iloc[idx]
+                section_helix2 = section_helices[c2].iloc[idx]
+                if not (isinstance(section_helix1, float) | isinstance(section_helix2, float)):
+                    angle_ = angle(section_helix1, section_helix2)
+                    if angle_ > 90:
+                        angle_ = 180 - angle_
+                    section_angles_df.loc[c1, c2] = angle_
+                else:
+                    section_angles_df.loc[c1, c2] = np.nan
+            else:
+                section_angles_df.loc[c1, c2] = 0.000000
+    return section_angles_df.T
+
+
+#############################################################################################################################
+
 
 # PLOTTING
 
