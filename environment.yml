@@ -1,0 +1,38 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # basics
+  - python=3.8
+
+  # data science
+  - requests
+  - numpy
+  - scipy
+  - pandas
+  - beautifulsoup4
+
+  # bioinformatics
+  - biopython
+  - gemmi
+
+  # Machine Learning
+  - pytorch
+  - scikit-learn
+
+  # visualization
+  - seaborn
+  - plotly
+  - matplotlib
+  - tqdm
+
+  # dev tools
+  - black
+  - pytest
+  - flake8
+  - tox
+  - ipython
+  # Show in jupyter
+  - ipykernel
+
+  - pip
