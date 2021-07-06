@@ -1,6 +1,7 @@
 channels:
   - conda-forge
   - defaults
+
 dependencies:
   # basics
   - python=3.8
@@ -11,13 +12,13 @@ dependencies:
   - scipy
   - pandas
   - beautifulsoup4
+  - networkx
 
   # bioinformatics
   - biopython
   - gemmi
 
   # Machine Learning
-  - pytorch
   - scikit-learn
 
   # visualization
@@ -30,9 +31,17 @@ dependencies:
   - black
   - pytest
   - flake8
+  - autopep8
   - tox
   - ipython
+
   # Show in jupyter
+  - jupyterlab
+  - jupyter_contrib_nbextensions
   - ipykernel
 
+  # pip
   - pip
+
+  # if pytorch<1.9: conda install pytorch torchvision torchaudio cpuonly -c pytorch  (for cpu only)
+  # additionally manually install: conda install pytorch-geometric -c rusty1s -c conda-forge

@@ -325,7 +325,7 @@ class CifProcessor():
             files = [f for f in files if (not 'r' in f) and (not 'g' in f)]
         
         self.dfl = []
-        for f in files:
+        for f in tqdm(files):
             self.dfl.append(pd.read_pickle(folder+f).reset_index().drop('index', axis=1))
             
             if len(f) >= 8:
