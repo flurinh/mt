@@ -43,7 +43,7 @@ class H5Net(nn.Module):
 
         # Atom type Embedding
         self.embedding = nn.Embedding(
-            num_embeddings=5, embedding_dim=self.embedding_dim
+            num_embeddings=22, embedding_dim=self.embedding_dim
         )
 
         # Previous ffnn
