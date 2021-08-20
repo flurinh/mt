@@ -123,6 +123,8 @@ def get_interaction_tables(p, l, section='H5', poi=('G.H5.23', 3.50), start=3.40
     if (start == None) or (end == None):
         start = poi[1] - eps
         end = poi[1] + eps
+        if (end > 7.56) & (end < 8):
+            end = 8.54
     if not isinstance(l, list):
         l = list(l)
     list_dists_df_list = []
@@ -257,14 +259,15 @@ def count_g_positions(data):
     g_section_list = list(G_SECTION_DICT.keys())
     for i in range(len(data)):
         df = data[i]
-        new_g_section_list = list(set([x.split('.')[1] for x in df.gprot_pos.unique() if len(x.split('.'))==3]))
-        g_section_list += new_g_section_list
-        for gs in new_g_section_list:
-            if gs not in list(gs_count_df.index):
-                gs_count_df.loc[gs,:] = 0
-            posis = [int(x.split('.')[-1]) for x in df.gprot_pos.unique() if (gs in x) & (len(x.split('.'))==3)]
-            for pos in posis:
-                gs_count_df.loc[gs, pos] += 1
+        if 'gprot_pos' in list(df.columns):
+            new_g_section_list = list(set([x.split('.')[1] for x in df.gprot_pos.unique() if len(x.split('.'))==3]))
+            g_section_list += new_g_section_list
+            for gs in new_g_section_list:
+                if gs not in list(gs_count_df.index):
+                    gs_count_df.loc[gs,:] = 0
+                posis = [int(x.split('.')[-1]) for x in df.gprot_pos.unique() if (gs in x) & (len(x.split('.'))==3)]
+                for pos in posis:
+                    gs_count_df.loc[gs, pos] += 1
     return gs_count_df.sort_index()
 
 
@@ -353,15 +356,20 @@ def calc_angles_between_helices(section_helices, idx):
 # PLOTTING
 
 
-def make_overview_plots(df, title='Occurances', cl='A', gprot='Gs', figsize=(20, 15), path='plots/', show=True, save=False):
-    name = title + '_' + cl + '_' + gprot
+def make_overview_plots(df, title='Occurances', set_title=True, cl='A', gprot='Gs', figsize=(20, 15), path='plots/', show=True, save=False, dpi=1200, dmax=20, cmap='RdYlGn_r'):
+    name = title + ' ' + cl + ' ' + gprot
     rcParams['figure.figsize'] = 20, 15
-    ax = sns.heatmap(df, cmap='RdYlGn_r', linewidths=.1, annot=True)
-    ax.set_title(title + ' ' + cl + ' ' + gprot)
+    sns.set(font_scale=2)
+    ax = sns.heatmap(df, cmap=cmap, linewidths=.1, annot=True, vmin=0, vmax=dmax)
+    if set_title:
+        ax.set_title(title + ' ' + cl + ' ' + gprot)
     if show:
         ax.plot()
     if save:
-        ax.figure.savefig(path+name+'.png')
+        ax.figure.savefig(path+name+'.png', dpi=dpi)
+        
+
+def make_helical_plot(df, cl='A', gprot='Gs', figsize=(20, 15), path='plots/', show=True, save=False, dpi=1200, dmax=20, cmap='RdYlGn_r')
 
 
 def plot_helix(points, helix, mean, name):
