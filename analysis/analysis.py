@@ -369,8 +369,6 @@ def make_overview_plots(df, title='Occurances', set_title=True, cl='A', gprot='G
         ax.figure.savefig(path+name+'.png', dpi=dpi)
         
 
-def make_helical_plot(df, cl='A', gprot='Gs', figsize=(20, 15), path='plots/', show=True, save=False, dpi=1200, dmax=20, cmap='RdYlGn_r')
-
 
 def plot_helix(points, helix, mean, name):
     P = go.Scatter3d(

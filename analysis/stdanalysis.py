@@ -13,6 +13,7 @@ class StdAnalysisComplexes:
         self.queries = pd.DataFrame(columns=['mode', 'query_tag', 'pdb_id', 'poi', 'dist_poi'])
         self.dist_df_dict = {}
         self.angles_df_dict = {}
+        self.helices = None
         self.helical_angles_mean = None
         self.helical_angles_std = None
         self.gs_count_df = None
@@ -64,6 +65,7 @@ class StdAnalysisComplexes:
                 for df in dists_df_list:
                     val = get_cell(df, row_idx, col_idx)
                     if type(val) == pd.core.series.Series:
+                        print(len(val))
                         val = val.iloc[0]
                     if val != None:
                         val_list.append(val)
@@ -78,6 +80,7 @@ class StdAnalysisComplexes:
         
     def run_helical_analysis(self):
         section_helices = calculate_section_helices(self.P.dfl)
+        self.helices = section_helices
         rois = list(section_helices.columns)
         list_helical_angles = []
         for idx in range(len(self.P.dfl)):
