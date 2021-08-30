@@ -9,7 +9,21 @@ import plotly.graph_objects as go
 
 ATOM_LIST = ['CA']
 
-G_SECTION_DICT = {}
+G_SECTION_DICT = {'H1_0': (1, 10),
+                 'H2_0': (1, 10),
+                 'H3_0': (1, 18),
+                 'H4_0': (3, 15),
+                 'H4_1': (10, 17),
+                 'H5_0': (1, 26),
+                 'HG_0': (1, 9),
+                 'HN_0': (30, 53),
+                 'S1_0': (1, 7),
+                 'S2_0': (1, 8),
+                 'S3_0': (1, 8),
+                 'S4_0': (1, 7),
+                 'S5_0': (1, 7),
+                 'hgh4_0': (1, 8),
+                 'H5_1': (13, 23)}
 R_SECTION_DICT = {'TM1': (1.45, 1.55),
                   'TM2': (2.45, 2.55),
                   'TM3': (3.40, 3.53),
@@ -301,32 +315,38 @@ def make_cont_section_dict_g(cont_sec_g):
     return cont_sec_g_dict
 
 
-def calculate_section_helices(data):
+def calculate_section_helices(data, is_complex=False):
     g_section_list = list(G_SECTION_DICT.keys())
     r_section_list = list(R_SECTION_DICT.keys())
-    columns = g_section_list + r_section_list
+    if is_complex:
+        columns = g_section_list + r_section_list
+    else:
+        columns = r_section_list
     section_diff_df = pd.DataFrame(columns=columns)
     for i in range(len(data)):
-        pdb = data[i].iloc[0]['PDB']
-        for c in columns:
-            if c in r_section_list:
-                df_r = section_filter(data[i].copy(), chain='r', start=R_SECTION_DICT[c][0], end=R_SECTION_DICT[c][1])
-                if len(df_r) > 0:
-                    if len(df_r[df_r['gen_pos'].str.contains('\?')])>3:
-                        df_r = df_r[~df_r['gen_pos'].str.contains('\?')]
-                xyz_r, mean_r = get_coords(df_r, False)
-                if (xyz_r.shape[0]>6):
-                    v_r = get_helix(xyz_r-np.asarray(mean_r))
-                    section_diff_df.loc[pdb, c] = v_r
-            elif (c in g_section_list):
-                c_, c_idx = c.split('_')
-                if c_ in [x.split('.')[1] for x in list(data[i].gprot_pos.unique()) if len(x.split('.'))==3]:
-                    df_g = section_filter(data[i].copy(), chain='g', gprot_region=c_, 
-                                          start=G_SECTION_DICT[c][0], end=G_SECTION_DICT[c][1])
-                    xyz_g, mean_g = get_coords(df_g, False)
-                    if (xyz_g.shape[0]>6):
-                        v_g = get_helix(xyz_g-np.asarray(mean_g))
-                        section_diff_df.loc[pdb, c] = v_g
+        if is_complex & ('gprot_pos' not in list(data[i].columns)):
+            continue
+        else:
+            pdb = data[i].iloc[0]['PDB']
+            for c in columns:
+                if c in r_section_list:
+                    df_r = section_filter(data[i].copy(), chain='r', start=R_SECTION_DICT[c][0], end=R_SECTION_DICT[c][1])
+                    if len(df_r) > 0:
+                        if len(df_r[df_r['gen_pos'].str.contains('\?')])>3:
+                            df_r = df_r[~df_r['gen_pos'].str.contains('\?')]
+                    xyz_r, mean_r = get_coords(df_r, False)
+                    if (xyz_r.shape[0]>6):
+                        v_r = get_helix(xyz_r-np.asarray(mean_r))
+                        section_diff_df.loc[pdb, c] = v_r
+                elif (c in g_section_list):
+                    c_, c_idx = c.split('_')
+                    if c_ in [x.split('.')[1] for x in list(data[i].gprot_pos.unique()) if len(x.split('.'))==3]:
+                        df_g = section_filter(data[i].copy(), chain='g', gprot_region=c_, 
+                                              start=G_SECTION_DICT[c][0], end=G_SECTION_DICT[c][1])
+                        xyz_g, mean_g = get_coords(df_g, False)
+                        if (xyz_g.shape[0]>6):
+                            v_g = get_helix(xyz_g-np.asarray(mean_g))
+                            section_diff_df.loc[pdb, c] = v_g
     return section_diff_df
 
 
