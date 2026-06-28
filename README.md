@@ -13,7 +13,7 @@
 <p align="center"><i>Left: a GPCR binding region as a GRN-labelled contact graph. Right: GNN training (Emax / EC50).</i></p>
 
 <p align="center">
-  <a href="https://flurinh.github.io">◆ Portfolio</a> &nbsp;·&nbsp;
+  <a href="https://flurinh.github.io/aboutme">◆ Portfolio</a> &nbsp;·&nbsp;
   <b>The build:</b>
   <a href="https://github.com/flurinh/LM-DTA">LM-DTA</a> →
   <b>Master thesis</b> →
