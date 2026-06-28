@@ -26,7 +26,7 @@
 
 ## What it is
 
-My MSc thesis (2021, Computational Macromolecular Therapy, Paul Scherrer Institut). I built a
+My MSc thesis (2021) — with the Deupi Group (LTC & LMB) at the Paul Scherrer Institut. I built a
 structural database of available GPCRs and their G-protein complexes, annotated them with
 Generic Residue Numbering, and turned the **G-protein binding region into a graph**. Graph
 neural networks then learn to predict **biased signalling** — the potency and efficacy
