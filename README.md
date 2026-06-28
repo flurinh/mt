@@ -1,47 +1,65 @@
-# MT
+<h1 align="center">Master Thesis — GPCR Biased Signalling with Graph Neural Networks</h1>
 
-## Installation on Merlin
+<p align="center">
+  <b>Represent GPCR–G-protein complexes as graphs; train GNNs to predict biased signalling.</b><br>
+  A large-scale structural analysis of GPCRs — and the seed that grew into ProtOS.
+</p>
 
-Create a conda env:
+<p align="center">
+  <img src="docs/gpcr-graph.png" alt="A GPCR binding region as a GRN-labelled contact graph" width="46%">
+  &nbsp;
+  <img src="docs/training.png" alt="GNN training curve" width="46%">
+</p>
+<p align="center"><i>Left: a GPCR binding region as a GRN-labelled contact graph. Right: GNN training (Emax / EC50).</i></p>
 
-    module load anaconda
-    conda env create -f environment.yml --prefix=/data/project/bio/schertler/Flurin/mtenv
+<p align="center">
+  <a href="https://flurinh.github.io">◆ Portfolio</a> &nbsp;·&nbsp;
+  <b>The build:</b>
+  <a href="https://github.com/flurinh/LM-DTA">LM-DTA</a> →
+  <b>Master thesis</b> →
+  <a href="https://github.com/flurinh/protos">ProtOS</a> →
+  <a href="https://github.com/flurinh/MOGRN">MOGRN</a> →
+  <a href="https://github.com/flurinh/lambda">Lambda</a> →
+  <a href="https://github.com/flurinh/Protos_MCP">ProtOS-MCP</a>
+</p>
 
-Activate (command line)
+---
 
-    conda activate /data/project/bio/schertler/Flurin/mtenv
+## What it is
 
-To just the environment to show up in jupyter, you may need to run (within the environment)
+My MSc thesis (2021, Computational Macromolecular Therapy, Paul Scherrer Institut). I built a
+structural database of available GPCRs and their G-protein complexes, annotated them with
+Generic Residue Numbering, and turned the **G-protein binding region into a graph**. Graph
+neural networks then learn to predict **biased signalling** — the potency and efficacy
+(EC50 / Emax) with which a receptor couples to different G-protein families (Gi/o, Gq/11, Gs).
 
-    python -m ipykernel install --user --name mtenv --display-name "Python [conda env:mtenv]"
+The data-management and graph machinery written here became the prototype for
+**[ProtOS](https://github.com/flurinh/protos)**.
 
-### Jupyterhub (Merlin)
+## What's inside
 
-1. Clone the repo
+The analysis lives in Jupyter notebooks, run end-to-end via `WALKTHROUGH.py`:
 
-    git clone git@github.com:flurinh/mt.git
+- GPCR / G-protein complex processing + GRN annotation
+- a local **graph representation** of the G-protein binding region
+- pairwise distance & helix–helix angle analysis
+- **graph neural network** training and analysis
 
-2. Install the env into jupyter. (needs testing)
+## Setup
 
-    conda activate /data/project/bio/schertler/Flurin/mtenv
-    python -m ipykernel install --user --name mtenv --display-name "Python [conda env:mtenv]"
+```bash
+conda env create -f environment.yml
+# then open WALKTHROUGH.ipynb and run all cells
+```
 
-I'm not sure whether this is necessary or sufficient to make the environemnt
-show up in jupyterhub. See [merlin-jupyter
-docs](https://lsm-hpce.gitpages.psi.ch/merlin6/jupyterhub.html)
+(Originally run on PSI's *Merlin* cluster; see the notebook headers for cluster-specific paths.)
 
-2. Launch jupyterhub: [https://merlin-jupyter.psi.ch:8000](https://merlin-jupyter.psi.ch:8000)
+> Research code from 2021 — kept as a record of where ProtOS began.
 
-3. Nagivate to your clone and open `WALKTHROUGH.ipynb`
+---
 
-4. Go to Kernel > Change kernel > Python [conda env:mtenv]
-
-5. Go to Cell > Run all
-
-
-## Adding dependencies
-
-New dendencies should be added to environment.yml. After adding something, update:
-
-    conda env update -f environment.yml
-
+<p align="center">
+◀ <b>Previously:</b> <a href="https://github.com/flurinh/LM-DTA">LM-DTA — drugs & targets as language</a>
+&nbsp;·&nbsp;
+<b>Next:</b> <a href="https://github.com/flurinh/protos">ProtOS — what it became</a> ▶
+</p>
