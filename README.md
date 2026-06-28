@@ -12,16 +12,15 @@
 </p>
 <p align="center"><i>Left: a GPCR binding region as a GRN-labelled contact graph. Right: GNN training (Emax / EC50).</i></p>
 
-<p align="center">
-  <a href="https://flurinh.github.io/aboutme">◆ Portfolio</a> &nbsp;·&nbsp;
-  <b>The build:</b>
-  <a href="https://github.com/flurinh/LM-DTA">LM-DTA</a> →
-  <b>Master thesis</b> →
-  <a href="https://github.com/flurinh/protos">ProtOS</a> →
-  <a href="https://github.com/flurinh/MOGRN">MOGRN</a> →
-  <a href="https://github.com/flurinh/lambda">Lambda</a> →
-  <a href="https://github.com/flurinh/Protos_MCP">ProtOS-MCP</a>
-</p>
+<p align="center"><a href="https://flurinh.github.io/aboutme">◆ Portfolio</a></p>
+
+<p align="center"><i>You may also be interested in</i></p>
+
+<table align="center"><tr>
+<td align="left">←&nbsp; <b>Previous work</b><br><a href="https://github.com/flurinh/LM-DTA">LM-DTA — drugs & targets as language</a></td>
+<td width="56"></td>
+<td align="right"><b>Continuation of this project</b> &nbsp;→<br><a href="https://github.com/flurinh/protos">ProtOS — what it became</a></td>
+</tr></table>
 
 ---
 
@@ -56,10 +55,3 @@ conda env create -f environment.yml
 
 > Research code from 2021 — kept as a record of where ProtOS began.
 
----
-
-<p align="center">
-◀ <b>Previously:</b> <a href="https://github.com/flurinh/LM-DTA">LM-DTA — drugs & targets as language</a>
-&nbsp;·&nbsp;
-<b>Next:</b> <a href="https://github.com/flurinh/protos">ProtOS — what it became</a> ▶
-</p>
